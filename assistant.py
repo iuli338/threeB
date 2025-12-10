@@ -2,29 +2,21 @@ import google.generativeai as genai
 import json
 import random
 import os
-from dotenv import load_dotenv # <--- IMPORT NOU
+from dotenv import load_dotenv
 
-# 1. Încărcăm variabilele din fișierul .env
 load_dotenv()
-
-# 2. Citim cheia din sistem
-API_KEY = os.getenv("GEMINI_KEY")
-
-# Verificare de siguranță
-if not API_KEY:
-    print("EROARE: Nu am găsit cheia în fișierul .env!")
+API_KEY = os.getenv("GEMINI_KEY") or "PUNE_CHEIA_AICI_DACA_NU_AI_ENV"
 
 try:
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash-live')
-except Exception as e:
-    print(f"!!! EROARE LA CONFIGURARE: {e}")
+    model = genai.GenerativeModel('gemini-2.5-flash-lite')
+except:
     model = None
 
 class UniversityAI:
     def __init__(self):
         self.data = self.load_data()
-        self.current_personality = 1 # 1 = Standard, 2 = Profesor, 3 = Student
+        self.current_personality = 1
         
         self.all_questions = [
             "Ce specializări există?", "Cât durează studiile?",
@@ -40,7 +32,6 @@ class UniversityAI:
         ]
 
     def set_personality(self, index):
-        """Schimbă personalitatea activă"""
         self.current_personality = index
 
     def load_data(self):
@@ -56,25 +47,23 @@ class UniversityAI:
         return random.sample(self.all_questions, 3)
 
     def ask_gemini(self, user_question):
-        if not model:
-            return "Eroare: API Key lipsă."
+        if not model: return "Eroare API Key."
 
-        # --- DEFINIREA PERSONALITĂȚILOR ---
+        # --- DEFINIREA PERSONAJELOR ---
         if self.current_personality == 1:
-            role_desc = "Ești THREEB, un asistent echilibrat și prietenos. Răspunde clar și concis (max 2 fraze)."
+            role = "Ești ANA, o studentă eminentă la FACIEE. Ești calmă, politicoasă și vorbești clar. Te prezinți ca Ana."
         elif self.current_personality == 2:
-            role_desc = "Ești un DOMN PROFESOR universitar foarte serios și academic. Folosește cuvinte elevate, fii politicos și detaliat. Începe propozițiile cu 'Stimate student...' sau 'Din punct de vedere academic...'."
+            role = "Ești DOMNUL PROFESOR IONESCU. Ești un bărbat în vârstă, foarte respectat. Vorbești formal, academic și puțin sever dar corect. Te prezinți ca Profesorul Ionescu."
         elif self.current_personality == 3:
-            role_desc = "Ești un student 'de gașcă' (Bro). Folosește slang studențesc (gen: 'frate', 'fain', 'nașpa'), emoji-uri multe (🔥, 🚀) și fii foarte relaxat. Vorbește ca și cum ai vorbi cu un prieten la o bere."
+            role = "Ești ALEX, un student anul 2. Ești super relaxat, folosești slang ('frate', 'gen', 'nașpa'). Ești prietenos și glumeț. Te prezinți ca Alex."
         else:
-            role_desc = "Ești un asistent util."
+            role = "Ești un asistent util."
 
         context = f"""
-        TIP RASPUNS: 2-3 propozitii maxim
-        ROL: {role_desc}
-        CONTEXT: Ești la Facultatea FACIEE Galați, stii aproape tot ce se intampla pe acolo
-        DATE OFICIALE: {json.dumps(self.data, ensure_ascii=False)}
-        
+        {role}
+        SARCINA: Răspunde utilizatorului folosind datele din JSON.
+        REGULĂ AUDIO: Răspunsul tău va fi citit de un sintetizator vocal, așa că nu folosi prea multe emoticoane în text, scrie cuvintele întregi.
+        DATE: {json.dumps(self.data, ensure_ascii=False)}
         ÎNTREBARE: {user_question}
         """
         
@@ -82,4 +71,4 @@ class UniversityAI:
             response = model.generate_content(context)
             return response.text
         except:
-            return "Eroare conexiune."
+            return "Nu pot răspunde acum."
