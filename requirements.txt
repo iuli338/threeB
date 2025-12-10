@@ -1,6 +1,7 @@
 flet[all]
 google-generativeai
 python-dotenv
+edge-tts
 gTTS
 pygame
 packaging

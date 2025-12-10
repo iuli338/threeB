@@ -94,31 +94,30 @@ def main(page: ft.Page):
     def change_language(e, lang_code):
         app_state["lang"] = lang_code
         
-        # Setăm limba în backend
+        # Setăm limba în backend și TTS
         if ai: ai.set_language(lang_code)
         tts.set_language(lang_code)
-        tts.stop() # Oprim audio vechi dacă se schimbă limba
+        tts.stop() # Oprim audio vechi
         
         # Updatăm UI Texte
         t_dict = TRANSLATIONS[lang_code]
         title_text.value = t_dict['title']
         txt_input.hint_text = t_dict['hint']
         
-        # Updatăm butoanele de personalitate
         btn_p1.content.value = t_dict['p1']
         btn_p2.content.value = t_dict['p2']
         btn_p3.content.value = t_dict['p3']
         
-        # Stil butoane limbă (highlight activ)
+        # Stil butoane limbă
         btn_ro.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'ro' else ft.Colors.TRANSPARENT
         btn_en.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'en' else ft.Colors.TRANSPARENT
         btn_ru.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'ru' else ft.Colors.TRANSPARENT
 
         add_message(t_dict['sys_lang'], "System")
-        refresh_suggestions() # Întrebări noi în limba nouă
+        refresh_suggestions()
         page.update()
 
-    # Butoane Limbă (Mici, în header)
+    # Butoane Limbă
     def lang_btn_style():
         return ft.ButtonStyle(padding=5, shape=ft.RoundedRectangleBorder(radius=5))
 
@@ -126,7 +125,6 @@ def main(page: ft.Page):
     btn_en = ft.TextButton("EN", on_click=lambda e: change_language(e, 'en'), style=lang_btn_style())
     btn_ru = ft.TextButton("RU", on_click=lambda e: change_language(e, 'ru'), style=lang_btn_style())
     
-    # Setăm RO ca activ inițial
     btn_ro.style.bgcolor = ft.Colors.BLUE_900
 
     # Asamblare Header
@@ -134,9 +132,9 @@ def main(page: ft.Page):
         [
             ft.Row([header_icon, title_text], spacing=10),
             ft.Row([
-                btn_ro, btn_en, btn_ru,      # Butoanele de limbă
-                ft.Container(width=10),      # Spațiu
-                btn_voice,                   # Butonul Pauză
+                btn_ro, btn_en, btn_ru,
+                ft.Container(width=10),
+                btn_voice,
                 ft.IconButton(ft.Icons.CLOSE, on_click=lambda _: page.window.destroy(), icon_color="red", icon_size=24)
             ])
         ],
@@ -149,6 +147,14 @@ def main(page: ft.Page):
         app_state["mode"] = index
         if ai: ai.set_personality(index)
         
+        # --- LOGICA SCHIMBARE VOCE (GEN) ---
+        # 1 = Ana (Female), 2 = Profesor (Male), 3 = Alex (Male)
+        if index == 1:
+            tts.set_gender('female')
+        else:
+            tts.set_gender('male')
+        # -----------------------------------
+
         t = themes[index]
         page.bgcolor = t["page_bg"]
         txt_input.bgcolor = t["input_bg"]
@@ -164,7 +170,6 @@ def main(page: ft.Page):
 
         btn_send.icon_color = t["accent"]
         
-        # Mesaj sistem tradus
         msg = TRANSLATIONS[app_state["lang"]]['sys_change'] + t["name"]
         add_message(msg, "System")
         page.update()
@@ -249,7 +254,6 @@ def main(page: ft.Page):
         response = ai.ask_gemini(user_msg) if ai else "Eroare AI"
         add_message(response, "AI")
         
-        # Dacă nu e pauză, vorbește
         if app_state["voice_playing"]:
             tts.speak(response)
             
