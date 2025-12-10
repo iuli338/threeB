@@ -1,0 +1,28 @@
+{
+    "facultate": "Facultatea de Automatică, Calculatoare, Inginerie Electrică și Electronică (FACIEE)",
+    "locatie": "Galați, Corp Y, Str. Științei nr. 2",
+    "descriere_generala": "Cea mai prestigioasă facultate tehnică din regiune, formând ingineri de top în IT și inginerie electrică.",
+    "domenii": [
+      {
+        "nume": "Calculatoare și Tehnologia Informației (CTI)",
+        "descriere": "Înveți programare, hardware, AI și arhitectura sistemelor. Joburi: Software Engineer, Arhitect de Sistem.",
+        "durata": "4 ani"
+      },
+      {
+        "nume": "Ingineria Sistemelor (AIA)",
+        "descriere": "Automatică și Informatică Aplicată. Roboți, linii de producție automate și controlul proceselor.",
+        "durata": "4 ani"
+      },
+      {
+        "nume": "Inginerie Electrică",
+        "descriere": "Totul despre energie, mașini electrice și surse regenerabile.",
+        "durata": "4 ani"
+      },
+      {
+        "nume": "Electronică și Telecomunicații",
+        "descriere": "Circuite, semnale, 5G și sisteme de comunicații avansate.",
+        "durata": "4 ani"
+      }
+    ],
+    "facilitati": "Laboratoare moderne, parteneriate cu firme IT locale, ligă studențească activă."
+  }
