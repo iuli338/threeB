@@ -16,7 +16,7 @@ if not API_KEY:
 
 try:
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash-live')
 except Exception as e:
     print(f"!!! EROARE LA CONFIGURARE: {e}")
     model = None
