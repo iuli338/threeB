@@ -1,28 +1,92 @@
 {
-    "facultate": "Facultatea de Automatică, Calculatoare, Inginerie Electrică și Electronică (FACIEE)",
-    "locatie": "Galați, Corp Y, Str. Științei nr. 2",
-    "descriere_generala": "Cea mai prestigioasă facultate tehnică din regiune, formând ingineri de top în IT și inginerie electrică.",
-    "domenii": [
-      {
-        "nume": "Calculatoare și Tehnologia Informației (CTI)",
-        "descriere": "Înveți programare, hardware, AI și arhitectura sistemelor. Joburi: Software Engineer, Arhitect de Sistem.",
-        "durata": "4 ani"
+  "facultate": {
+    "nume_complet": "Facultatea de Automatică, Calculatoare, Inginerie Electrică și Electronică (FACIEE)",
+    "universitate": "Universitatea 'Dunărea de Jos' din Galați (UDJG)",
+    "adresa": "Strada Științei nr. 2, Corp Y, Galați",
+    "descriere_generala": "Lider regional în educația tehnică, FACIEE pregătește ingineri pentru viitorul digital. Este cea mai căutată facultate din Galați, oferind acces la laboratoare moderne și parteneriate cu giganți industriali.",
+    "decanat_contact": "secretariat.faciee@ugal.ro",
+    "site_web": "www.aciee.ugal.ro"
+  },
+  "admitere": {
+    "metoda": "Concurs de dosare (bazat pe media de la Bacalaureat) + Test grilă (pentru anumite specializări de top în anii cu concurență mare).",
+    "perioada": "Iulie (sesiunea principală) și Septembrie (pentru locuri rămase).",
+    "sfat": "La CTI (Calculatoare) este cea mai mare concurență, media de intrare este adesea peste 9.00."
+  },
+  "domenii_licenta": [
+    {
+      "nume": "Calculatoare și Tehnologia Informației (CTI)",
+      "acronim": "C.T.I.",
+      "durata": "4 ani",
+      "descriere": "Elita IT-ului. Înveți programare (C++, Java, Python), Arhitectura Calculatoarelor, AI, Baze de Date și Hardware.",
+      "oportunitati_cariera": "Software Developer, Cloud Architect, Data Scientist, Game Developer."
+    },
+    {
+      "nume": "Ingineria Sistemelor (AIA)",
+      "acronim": "A.I.A.",
+      "durata": "4 ani",
+      "descriere": "Automatică și Informatică Aplicată. Combini programarea cu hardware-ul. Înveți să programezi roboți, linii de producție, drone și sisteme inteligente (Smart Home).",
+      "oportunitati_cariera": "Automation Engineer, Robotics Specialist, SCADA Developer."
+    },
+    {
+      "nume": "Inginerie Electrică",
+      "acronim": "I.E.",
+      "durata": "4 ani",
+      "descriere": "Viitorul energiei. Studii despre mașini electrice, energie regenerabilă (panouri solare, eoliene), vehicule electrice și rețele inteligente.",
+      "oportunitati_cariera": "Inginer Energetician, Proiectant Instalații Electrice, Specialist Automotive."
+    },
+    {
+      "nume": "Electronică, Telecomunicații și Tehnologii Informaționale",
+      "acronim": "E.T.T.I.",
+      "durata": "4 ani",
+      "descriere": "Totul despre transmiterea informației. Circuite integrate, 5G, antene, procesare de semnal și electronică aplicată.",
+      "oportunitati_cariera": "Telecom Engineer, RF Engineer, Electronics Designer."
+    }
+  ],
+  "viata_student": {
+    "cazare": {
+      "locatie": "Campusul Studențesc 'Al. I. Cuza' (aproximativ 10-15 min de mers pe jos de facultate).",
+      "conditii": "Camere recent renovate, internet gratuit, săli de lectură. Căminele C și D sunt cele mai populare.",
+      "pret_estimativ": "Între 150 - 250 RON/lună (pentru studenții la buget/taxă).",
+      "sfat_ai": "Depune cererea de cămin imediat ce ești admis, locurile bune se ocupă repede!"
+    },
+    "mancare_cantina": {
+      "nume": "Cantina Studențească UDJG",
+      "locatie": "În inima Campusului 'Al. I. Cuza'.",
+      "orar": "Luni - Vineri: 12:00 - 15:00 și 18:00 - 20:00.",
+      "preturi_estimative": {
+        "meniu_complet": "aprox. 15-20 RON (ciorbă + felul 2 + desert)",
+        "ciorba": "6 - 8 RON",
+        "felul_principal": "10 - 14 RON (șnițel, piure, grătar)",
+        "desert": "3 - 5 RON"
       },
-      {
-        "nume": "Ingineria Sistemelor (AIA)",
-        "descriere": "Automatică și Informatică Aplicată. Roboți, linii de producție automate și controlul proceselor.",
-        "durata": "4 ani"
-      },
-      {
-        "nume": "Inginerie Electrică",
-        "descriere": "Totul despre energie, mașini electrice și surse regenerabile.",
-        "durata": "4 ani"
-      },
-      {
-        "nume": "Electronică și Telecomunicații",
-        "descriere": "Circuite, semnale, 5G și sisteme de comunicații avansate.",
-        "durata": "4 ani"
-      }
-    ],
-    "facilitati": "Laboratoare moderne, parteneriate cu firme IT locale, ligă studențească activă."
+      "vibe": "Mâncare ca la mama acasă, prețuri imbatabile. Coada e mare la prânz!"
+    },
+    "burse": [
+      "Bursă de Performanță (pentru medii de 10 sau concursuri)",
+      "Bursă de Merit (medii peste 9.50)",
+      "Bursă Socială (pentru venituri mici)",
+      "Bursă Erasmus+ (pentru studiat în străinătate 1 semestru)"
+    ]
+  },
+  "transport_si_parcare": {
+    "parcare": {
+      "situatie": "DIFICILĂ. Parcarea facultății din Corpul Y este mică și rezervată profesorilor.",
+      "sfat_ai": "Nu veni cu mașina dacă poți evita. Studenții parchează pe străduțele laterale (Str. Gării, Str. Carnabel), dar riști amenzi dacă blochezi accesul.",
+      "alternativa": "Lasă mașina la cămin și mergi pe jos (10 min)."
+    },
+    "autobuze": {
+      "statii_apropiate": "Stația 'Parfumul Teilor' sau 'Centru'.",
+      "linii_populare": [
+        "102 și 104 (leagă Campusul de Centru și Gară)",
+        "9 (Troleibuz)",
+        "11 (pentru cei care vin din Micro 19)"
+      ],
+      "bilet": "Reducere 90% pentru studenți la abonamente."
+    }
+  },
+  "facilitati_extra": {
+    "laboratoare": "Laboratoare sponsorizate de Liberty Steel, Crystal System și laboratoare Cisco/Microsoft.",
+    "biblioteca": "Bibliotecă modernă cu acces la baze de date internaționale.",
+    "distractie": "Cluburile studențești sunt aproape, iar Liga Studenților organizează baluri și seri de jocuri."
   }
+}

@@ -2,14 +2,23 @@ import google.generativeai as genai
 import json
 import random
 import os
+from dotenv import load_dotenv # <--- IMPORT NOU
 
-# --- PUNE CHEIA TA AICI ---
-API_KEY = "AIzaSyCga9kZkWqzQb0H8085x61X53cGgEbzvJk" 
+# 1. Încărcăm variabilele din fișierul .env
+load_dotenv()
+
+# 2. Citim cheia din sistem
+API_KEY = os.getenv("GEMINI_KEY")
+
+# Verificare de siguranță
+if not API_KEY:
+    print("EROARE: Nu am găsit cheia în fișierul .env!")
 
 try:
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash') # Sau modelul care ți-a mers ție
+    model = genai.GenerativeModel('gemini-2.5-flash')
 except Exception as e:
+    print(f"!!! EROARE LA CONFIGURARE: {e}")
     model = None
 
 class UniversityAI:
