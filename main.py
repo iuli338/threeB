@@ -1,207 +1,231 @@
 import flet as ft
 from assistant import UniversityAI
-from tts_manager import TTSManager # <--- IMPORT NOU
+from tts_manager import TTSManager
 import time
 import threading
 
+# --- DICȚIONAR TRADUCERI UI ---
+TRANSLATIONS = {
+    'ro': {
+        'title': 'THREEB',
+        'hint': 'Întreabă ceva...',
+        'p1': 'Ana (Studentă)', 'p2': 'Prof. Ionescu', 'p3': 'Alex (Bro)',
+        'sys_change': '✨ Mediu schimbat: ',
+        'sys_lang': 'Limbă setată: Română',
+        'welcome': 'Salut! Eu sunt Ana. Cu ce te ajut?'
+    },
+    'en': {
+        'title': 'THREEB',
+        'hint': 'Ask something...',
+        'p1': 'Ana (Student)', 'p2': 'Prof. Jones', 'p3': 'Alex (Bro)',
+        'sys_change': '✨ Theme changed: ',
+        'sys_lang': 'Language set: English',
+        'welcome': 'Hi! I am Ana. How can I help?'
+    },
+    'ru': {
+        'title': 'THREEB',
+        'hint': 'Спроси что-нибудь...',
+        'p1': 'Ана (Студент)', 'p2': 'Проф. Иванов', 'p3': 'Алекс (Бро)',
+        'sys_change': '✨ Тема изменена: ',
+        'sys_lang': 'Язык: Русский',
+        'welcome': 'Привет! Я Ана. Чем помочь?'
+    }
+}
+
 def main(page: ft.Page):
-    # --- 1. CONFIGURARE ---
+    # --- CONFIGURARE ---
     page.title = "THREEB"
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 10 
     page.spacing = 5
     page.window.maximized = True
+    # page.window.full_screen = True 
 
-    page.fonts = {
-        "Kanit": "https://raw.githubusercontent.com/google/fonts/master/ofl/kanit/Kanit-Bold.ttf"
-    }
+    page.fonts = {"Kanit": "https://raw.githubusercontent.com/google/fonts/master/ofl/kanit/Kanit-Bold.ttf"}
 
     try:
         ai = UniversityAI()
     except:
         ai = None
 
-    # Inițializare TTS
     tts = TTSManager()
-    voice_enabled = True # Pornit implicit
+    
+    # Stare aplicație
+    app_state = {
+        "voice_playing": True, # True = Play, False = Paused/Muted
+        "lang": "ro",
+        "mode": 1
+    }
 
     # --- TEMATICI ---
     themes = {
-        1: { # ANA (Standard)
-            "name": "Ana (Studentă)",
-            "page_bg": "#121212",
-            "input_bg": "#262626",
-            "ai_bubble": ft.Colors.BLUE_900,
-            "accent": ft.Colors.BLUE_400,
-            "font_family": "Roboto",
-            "icon": ft.Icons.FACE_3, # Fata
-            "header_icon": ft.Icons.RECORD_VOICE_OVER,
-            "btn_active": ft.Colors.BLUE_700
-        },
-        2: { # PROFESOR IONESCU
-            "name": "Prof. Ionescu",
-            "page_bg": "#1B3A28",
-            "input_bg": "#2E5A43",
-            "ai_bubble": "#3E2723",
-            "accent": ft.Colors.AMBER_400,
-            "font_family": "Serif",
-            "icon": ft.Icons.FACE, # Barbat ochelari/generic
-            "header_icon": ft.Icons.HISTORY_EDU,
-            "btn_active": ft.Colors.AMBER_800
-        },
-        3: { # ALEX (Student)
-            "name": "Alex (Bro)",
-            "page_bg": "#1A0B2E",
-            "input_bg": "#2D1B4E",
-            "ai_bubble": "#4A148C",
-            "accent": ft.Colors.PINK_400,
-            "font_family": "Monospace",
-            "icon": ft.Icons.HEADSET_MIC, # Gamer
-            "header_icon": ft.Icons.GAMEPAD,
-            "btn_active": ft.Colors.PINK_600
-        }
+        1: { "name": "Standard", "page_bg": "#121212", "input_bg": "#262626", "ai_bubble": ft.Colors.BLUE_900, "accent": ft.Colors.BLUE_400, "font": "Roboto", "icon": ft.Icons.FACE_3, "header_icon": ft.Icons.RECORD_VOICE_OVER, "btn": ft.Colors.BLUE_700 },
+        2: { "name": "Profesor", "page_bg": "#1B3A28", "input_bg": "#2E5A43", "ai_bubble": "#3E2723", "accent": ft.Colors.AMBER_400, "font": "Serif", "icon": ft.Icons.FACE, "header_icon": ft.Icons.HISTORY_EDU, "btn": ft.Colors.AMBER_800 },
+        3: { "name": "Student", "page_bg": "#1A0B2E", "input_bg": "#2D1B4E", "ai_bubble": "#4A148C", "accent": ft.Colors.PINK_400, "font": "Monospace", "icon": ft.Icons.HEADSET_MIC, "header_icon": ft.Icons.GAMEPAD, "btn": ft.Colors.PINK_600 }
     }
 
-    current_mode = 1 
     page.bgcolor = themes[1]["page_bg"]
 
-    # --- 2. HEADER ---
-    header_icon_control = ft.Icon(themes[1]["header_icon"], size=28, color=themes[1]["accent"])
-    title_text = ft.Text("THREEB", size=22, weight="bold", font_family=themes[1]["font_family"])
+    # --- HEADER & CONTROLS ---
+    
+    header_icon = ft.Icon(themes[1]["header_icon"], size=28, color=themes[1]["accent"])
+    title_text = ft.Text("THREEB", size=22, weight="bold")
 
-    # Funcție toggle voce
-    def toggle_voice(e):
-        nonlocal voice_enabled
-        voice_enabled = not voice_enabled
-        btn_voice.icon = ft.Icons.VOLUME_UP if voice_enabled else ft.Icons.VOLUME_OFF
-        btn_voice.icon_color = ft.Colors.GREEN if voice_enabled else ft.Colors.RED
-        if not voice_enabled:
-            tts.stop() # Oprim daca vorbeste
+    # 1. LOGICA PAUZĂ / PLAY
+    def toggle_voice_pause(e):
+        app_state["voice_playing"] = not app_state["voice_playing"]
+        
+        if app_state["voice_playing"]:
+            # Dăm UNPAUSE (continuă)
+            btn_voice.icon = ft.Icons.PAUSE_CIRCLE_FILLED
+            btn_voice.icon_color = ft.Colors.GREEN
+            tts.unpause()
+        else:
+            # Dăm PAUSE (îngheață)
+            btn_voice.icon = ft.Icons.PLAY_CIRCLE_FILLED
+            btn_voice.icon_color = ft.Colors.RED
+            tts.pause()
+            
         page.update()
 
-    btn_voice = ft.IconButton(ft.Icons.VOLUME_UP, on_click=toggle_voice, icon_color="green")
+    btn_voice = ft.IconButton(ft.Icons.PAUSE_CIRCLE_FILLED, on_click=toggle_voice_pause, icon_color="green", tooltip="Pause/Resume Voice")
 
+    # 2. LOGICA SCHIMBARE LIMBĂ
+    def change_language(e, lang_code):
+        app_state["lang"] = lang_code
+        
+        # Setăm limba în backend
+        if ai: ai.set_language(lang_code)
+        tts.set_language(lang_code)
+        tts.stop() # Oprim audio vechi dacă se schimbă limba
+        
+        # Updatăm UI Texte
+        t_dict = TRANSLATIONS[lang_code]
+        title_text.value = t_dict['title']
+        txt_input.hint_text = t_dict['hint']
+        
+        # Updatăm butoanele de personalitate
+        btn_p1.content.value = t_dict['p1']
+        btn_p2.content.value = t_dict['p2']
+        btn_p3.content.value = t_dict['p3']
+        
+        # Stil butoane limbă (highlight activ)
+        btn_ro.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'ro' else ft.Colors.TRANSPARENT
+        btn_en.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'en' else ft.Colors.TRANSPARENT
+        btn_ru.style.bgcolor = ft.Colors.BLUE_900 if lang_code == 'ru' else ft.Colors.TRANSPARENT
+
+        add_message(t_dict['sys_lang'], "System")
+        refresh_suggestions() # Întrebări noi în limba nouă
+        page.update()
+
+    # Butoane Limbă (Mici, în header)
+    def lang_btn_style():
+        return ft.ButtonStyle(padding=5, shape=ft.RoundedRectangleBorder(radius=5))
+
+    btn_ro = ft.TextButton("RO", on_click=lambda e: change_language(e, 'ro'), style=lang_btn_style())
+    btn_en = ft.TextButton("EN", on_click=lambda e: change_language(e, 'en'), style=lang_btn_style())
+    btn_ru = ft.TextButton("RU", on_click=lambda e: change_language(e, 'ru'), style=lang_btn_style())
+    
+    # Setăm RO ca activ inițial
+    btn_ro.style.bgcolor = ft.Colors.BLUE_900
+
+    # Asamblare Header
     header = ft.Row(
         [
-            ft.Row([header_icon_control, title_text], spacing=10),
+            ft.Row([header_icon, title_text], spacing=10),
             ft.Row([
-                btn_voice, # Butonul de voce
+                btn_ro, btn_en, btn_ru,      # Butoanele de limbă
+                ft.Container(width=10),      # Spațiu
+                btn_voice,                   # Butonul Pauză
                 ft.IconButton(ft.Icons.CLOSE, on_click=lambda _: page.window.destroy(), icon_color="red", icon_size=24)
             ])
         ],
-        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
-        height=40
+        alignment=ft.MainAxisAlignment.SPACE_BETWEEN, height=40
     )
 
-    # --- 3. FUNCȚII TEMATICĂ ---
+    # --- MAIN UI LOGIC ---
+
     def change_personality(e, index):
-        nonlocal current_mode
-        current_mode = index
+        app_state["mode"] = index
         if ai: ai.set_personality(index)
         
         t = themes[index]
         page.bgcolor = t["page_bg"]
         txt_input.bgcolor = t["input_bg"]
-        txt_input.text_style = ft.TextStyle(font_family=t["font_family"], color=ft.Colors.WHITE, size=16)
+        txt_input.text_style = ft.TextStyle(font_family=t["font"], color=ft.Colors.WHITE, size=16)
         
-        header_icon_control.name = t["header_icon"]
-        header_icon_control.color = t["accent"]
-        title_text.font_family = t["font_family"]
+        header_icon.name = t["header_icon"]
+        header_icon.color = t["accent"]
+        title_text.font_family = t["font"]
         
         for btn, idx in [(btn_p1, 1), (btn_p2, 2), (btn_p3, 3)]:
-            btn.style.bgcolor = ft.Colors.GREY_800 if idx != index else t["btn_active"]
-            btn.content.font_family = t["font_family"]
+            btn.style.bgcolor = ft.Colors.GREY_800 if idx != index else t["btn"]
+            btn.content.font_family = t["font"]
 
         btn_send.icon_color = t["accent"]
-        add_message(f"✨ Ai ales: {t['name']}", "System")
         
-        # Salut Audio la schimbare
-        if voice_enabled:
-            intro_msg = f"Salut! Eu sunt {t['name'].split(' ')[0]}."
-            tts.speak(intro_msg)
-
+        # Mesaj sistem tradus
+        msg = TRANSLATIONS[app_state["lang"]]['sys_change'] + t["name"]
+        add_message(msg, "System")
         page.update()
 
     def get_btn_style():
         return ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=8), bgcolor=ft.Colors.GREY_800, color=ft.Colors.WHITE, padding=5)
 
-    btn_p1 = ft.ElevatedButton(content=ft.Text("Ana", size=13), on_click=lambda e: change_personality(e, 1), style=get_btn_style(), height=35, expand=True)
-    btn_p1.style.bgcolor = themes[1]["btn_active"] 
-    btn_p2 = ft.ElevatedButton(content=ft.Text("Prof. Ionescu", size=13), on_click=lambda e: change_personality(e, 2), style=get_btn_style(), height=35, expand=True)
-    btn_p3 = ft.ElevatedButton(content=ft.Text("Alex", size=13), on_click=lambda e: change_personality(e, 3), style=get_btn_style(), height=35, expand=True)
+    btn_p1 = ft.ElevatedButton(content=ft.Text(TRANSLATIONS['ro']['p1'], size=13), on_click=lambda e: change_personality(e, 1), style=get_btn_style(), height=35, expand=True)
+    btn_p1.style.bgcolor = themes[1]["btn"] 
+    btn_p2 = ft.ElevatedButton(content=ft.Text(TRANSLATIONS['ro']['p2'], size=13), on_click=lambda e: change_personality(e, 2), style=get_btn_style(), height=35, expand=True)
+    btn_p3 = ft.ElevatedButton(content=ft.Text(TRANSLATIONS['ro']['p3'], size=13), on_click=lambda e: change_personality(e, 3), style=get_btn_style(), height=35, expand=True)
 
     personality_row = ft.Row([btn_p1, btn_p2, btn_p3], spacing=5)
 
-    # --- 4. CHAT & INPUT ---
     chat_list = ft.ListView(expand=True, spacing=10, auto_scroll=True)
 
     txt_input = ft.TextField(
-        hint_text="Întreabă ceva...", text_size=16, expand=True, border_radius=20, filled=True,
+        hint_text=TRANSLATIONS['ro']['hint'], text_size=16, expand=True, border_radius=20, filled=True,
         bgcolor=themes[1]["input_bg"], content_padding=15, text_style=ft.TextStyle(font_family="Roboto"),
         on_submit=lambda e: send_message(None), height=50
     )
 
     suggestions_row = ft.Row(spacing=5, alignment=ft.MainAxisAlignment.CENTER)
 
-    # --- LOGICA ---
     def add_message(text, sender):
-        t = themes[current_mode]
-        
+        t = themes[app_state["mode"]]
         if sender == "AI":
-            align = ft.MainAxisAlignment.START
-            bg_col = t["ai_bubble"] 
-            icon_type = t["icon"]
-            text_col = ft.Colors.WHITE
-            font_use = t["font_family"]
-            border_radius = ft.border_radius.only(top_left=0, top_right=15, bottom_left=15, bottom_right=15)
+            align, bg_col, icon_type, text_col, rad = ft.MainAxisAlignment.START, t["ai_bubble"], t["icon"], ft.Colors.WHITE, ft.border_radius.only(0,15,15,15)
         elif sender == "System":
-            align = ft.MainAxisAlignment.CENTER
-            bg_col = ft.Colors.with_opacity(0.3, "#000000")
-            icon_type = ft.Icons.AUTO_AWESOME
-            text_col = t["accent"]
-            font_use = t["font_family"]
-            border_radius = ft.border_radius.all(8)
-        else: # User
-            align = ft.MainAxisAlignment.END
-            bg_col = ft.Colors.GREY_800
-            icon_type = ft.Icons.PERSON
-            text_col = ft.Colors.WHITE
-            font_use = t["font_family"]
-            border_radius = ft.border_radius.only(top_left=15, top_right=0, bottom_left=15, bottom_right=15)
+            align, bg_col, icon_type, text_col, rad = ft.MainAxisAlignment.CENTER, ft.Colors.with_opacity(0.3, "#000000"), ft.Icons.AUTO_AWESOME, t["accent"], ft.border_radius.all(8)
+        else:
+            align, bg_col, icon_type, text_col, rad = ft.MainAxisAlignment.END, ft.Colors.GREY_800, ft.Icons.PERSON, ft.Colors.WHITE, ft.border_radius.only(15,0,15,15)
 
-        adaptive_width = None
-        is_long = len(text) > 40
-        if is_long: adaptive_width = 500
-
-        content_row = ft.Row([
+        width = 500 if len(text) > 40 else None
+        
+        content = ft.Row([
             ft.Icon(icon_type, size=16, color=t["accent"] if sender == "AI" else ft.Colors.GREY_400),
-            ft.Text(text, size=15, color=text_col, selectable=True, font_family=font_use, expand=is_long, weight="bold" if sender=="System" else "normal")
+            ft.Text(text, size=15, color=text_col, selectable=True, font_family=t["font"], expand=bool(width), weight="bold" if sender=="System" else "normal")
         ], vertical_alignment=ft.CrossAxisAlignment.START, spacing=8)
 
-        bubble = ft.Row(
-            [ft.Container(content=content_row, bgcolor=bg_col, padding=10, border_radius=border_radius, width=adaptive_width)],
-            alignment=align, opacity=1, animate_opacity=500
-        )
+        bubble = ft.Row([ft.Container(content=content, bgcolor=bg_col, padding=10, border_radius=rad, width=width)], alignment=align, opacity=1, animate_opacity=500)
         chat_list.controls.append(bubble)
         page.update()
 
         if sender == "System":
-            def fade_out_task():
+            def fade():
                 time.sleep(2)
                 bubble.opacity = 0
                 page.update()
                 time.sleep(0.6)
                 chat_list.controls.remove(bubble)
                 page.update()
-            threading.Thread(target=fade_out_task, daemon=True).start()
+            threading.Thread(target=fade, daemon=True).start()
 
     def refresh_suggestions():
         suggestions_row.controls.clear()
-        t = themes[current_mode]
-        questions = ai.get_random_shortcuts() if ai else ["Verifică API", "Eroare"]
+        t = themes[app_state["mode"]]
+        questions = ai.get_random_shortcuts() if ai else ["Error"]
         for q in questions:
             btn = ft.ElevatedButton(
-                content=ft.Text(q, font_family=t["font_family"], size=12),
+                content=ft.Text(q, font_family=t["font"], size=12),
                 on_click=lambda e, question=q: click_suggestion(question),
                 bgcolor=ft.Colors.GREY_800, color=ft.Colors.BLUE_100, height=40,
                 style=ft.ButtonStyle(shape=ft.RoundedRectangleBorder(radius=10), padding=5),
@@ -223,21 +247,18 @@ def main(page: ft.Page):
         page.update()
         
         response = ai.ask_gemini(user_msg) if ai else "Eroare AI"
-        
         add_message(response, "AI")
         
-        # --- AICI SE INTAMPLA MAGIA VOCALA ---
-        if voice_enabled:
+        # Dacă nu e pauză, vorbește
+        if app_state["voice_playing"]:
             tts.speak(response)
-        # -------------------------------------
-        
+            
         refresh_suggestions()
 
     btn_send = ft.IconButton(icon=ft.Icons.SEND_ROUNDED, icon_color=themes[1]["accent"], icon_size=30, on_click=send_message)
 
-    add_message("Bună! Eu sunt Ana. Cu ce te ajut?", "AI")
-    if voice_enabled: tts.speak("Bună! Eu sunt Ana. Cu ce te ajut?")
-    
+    add_message(TRANSLATIONS['ro']['welcome'], "AI")
+    if app_state["voice_playing"]: tts.speak(TRANSLATIONS['ro']['welcome'])
     try: refresh_suggestions()
     except: pass
 
