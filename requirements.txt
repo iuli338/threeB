@@ -1,0 +1,4 @@
+flet[all]
+google-generativeai
+python-dotenv
+packaging
