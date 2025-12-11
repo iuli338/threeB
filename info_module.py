@@ -3,40 +3,44 @@
 import customtkinter as ctk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 import os
-import textwrap
 
-# --- Configuration (using constants from home_module for consistency) ---
+# --- Configuration ---
+# Colors
 TITLE_BLUE = "#4da6ff" 
-ACCENT_COLOR = "#343638" # Slightly lighter gray for the content background
+ACCENT_COLOR = "#2B2B2B" # Darker, modern card background
+TEXT_COLOR = "#E0E0E0"   # Off-white for better readability
+BG_COLOR = "#1a1a1a"     # Main background
+
+# Image configuration
 IMAGE_PATHS = [
     "burse.jpg",
     "cantine.jpg",
     "erasmus.jpg"
 ]
-# Image size adjusted to fit the new, cleaner layout
-IMAGE_SIZE = (320, 260) 
 
-# Descriptions specific to UGAL (University 'Dunărea de Jos' of Galați)
+# Adjusted size to fit 480p height constraints better (4:3 ratio)
+IMAGE_SIZE = (300, 225) 
+
+# Descriptions
 INFO_SLIDES = [
     {
-        "title": "Scholarship Success (Burse)",
-        "description": "Unlock your potential! UGAL offers various merit scholarships for high achievers and social scholarships for financial support. Think smart, apply early! Check the faculty for deadlines and detailed criteria.",
+        "title": "Scholarship Success",
+        "description": "Unlock your potential! UGAL offers merit scholarships for high achievers and social support. Check the faculty for deadlines and criteria to secure your funding.",
         "color": "#77AADD"
     },
     {
-        "title": "Your New Home: Student Dorms",
-        "description": "Moving away? No stress! UGAL provides modern, comfortable housing close to campus. It's the perfect place to meet people and focus on your studies. Dorm assignments are competitive, so keep those grades up!",
+        "title": "Student Dorms",
+        "description": "Modern, comfortable housing close to campus. It's the perfect place to meet people and focus on studies. Assignments are competitive, so keep those grades up!",
         "color": "#A958F4"
     },
     {
-        "title": "Eat Well, Learn Better: Cafeteria",
-        "description": "Fuel your brain! The UGAL Cantină offers diverse, delicious, and highly subsidized meals—it's super affordable. Forget cooking—enjoy quick, balanced, and cheap lunches right on campus. Great food equals great studying!",
+        "title": "Campus Cafeteria",
+        "description": "Fuel your brain! The UGAL Cantină offers diverse, delicious, and highly subsidized meals. Forget cooking—enjoy quick, balanced, and cheap lunches right on campus.",
         "color": "#77FFF4"
     }
 ]
 
-
-# Create dummy images for the info slides if they don't exist
+# --- Dummy Image Generator ---
 def create_dummy_info_images():
     if not os.path.exists("images"):
         os.makedirs("images")
@@ -51,30 +55,21 @@ def create_dummy_info_images():
         full_path = os.path.join("images", path_name)
         
         if not os.path.exists(full_path):
-            print(f"Creating placeholder image: {full_path}")
             img = Image.new('RGB', IMAGE_SIZE, slide["color"])
             draw = ImageDraw.Draw(img)
+            title_text = f"{slide['title']}"
             
-            # Center the title text on the placeholder image
-            title_text = f"PLACEHOLDER:\n{slide['title']}"
-            try:
-                # Use a simplified approach for centering placeholder text
-                text_w, text_h = draw.textsize(title_text, font=font_title)
-            except AttributeError:
-                text_w = 200 
-                text_h = 40
-                
-            text_x = (IMAGE_SIZE[0] - text_w) // 2
-            text_y = (IMAGE_SIZE[1] - text_h) // 2
-            
-            draw.text((text_x, text_y), title_text, fill=(0, 0, 0), font=font_title, align="center")
+            # Simple centering logic
+            w, h = IMAGE_SIZE
+            # Using basic coordinate math instead of textsize/anchor for compatibility
+            draw.text((20, h//2 - 10), title_text, fill=(0, 0, 0), font=font_title)
             img.save(full_path)
 
 create_dummy_info_images()
 
 class InfoView(ctk.CTkFrame):
     def __init__(self, parent, controller):
-        super().__init__(parent)
+        super().__init__(parent, fg_color="transparent") # Transparent to use parent bg
         self.controller = controller
         self.pack(fill="both", expand=True)
         
@@ -84,122 +79,156 @@ class InfoView(ctk.CTkFrame):
         self.setup_ui()
 
     def _load_images(self):
-        """Loads and prepares images for display."""
+        """Loads and prepares images."""
         for path_name in IMAGE_PATHS:
             full_path = os.path.join("images", path_name) 
             try:
                 img = Image.open(full_path)
-                img = img.resize(IMAGE_SIZE, Image.LANCZOS)
+                # Use Resampling.LANCZOS if available, else LANCZOS (older Pillow)
+                try:
+                    resample_filter = Image.Resampling.LANCZOS
+                except AttributeError:
+                    resample_filter = Image.LANCZOS
+                    
+                img = img.resize(IMAGE_SIZE, resample_filter)
                 self.tk_images.append(ImageTk.PhotoImage(img))
             except Exception as e:
-                print(f"Error loading image {full_path}: {e}. Using fallback image.")
-                dummy_img = Image.new('RGB', IMAGE_SIZE, "#FF0000")
+                print(f"Error: {e}")
+                dummy_img = Image.new('RGB', IMAGE_SIZE, "#555")
                 self.tk_images.append(ImageTk.PhotoImage(dummy_img))
 
-
     def setup_ui(self):
-        # Header
-        header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        header_frame.pack(pady=(20, 20))
+        # Configure grid for the main frame to center content
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0) # Header
+        self.grid_rowconfigure(1, weight=1) # Content
+        self.grid_rowconfigure(2, weight=0) # Footer
+
+        # --- 1. Header Area (Top Bar) ---
+        header_frame = ctk.CTkFrame(self, fg_color="transparent", height=50)
+        header_frame.grid(row=0, column=0, sticky="ew", padx=20, pady=(15, 5))
         
-        # Increased font size for impact
+        # Back Button (Icon style)
+        self.btn_back = ctk.CTkButton(
+            header_frame, 
+            text="← Back", 
+            command=self.controller.show_home,
+            width=80, 
+            height=32,
+            fg_color="#333",
+            hover_color="#444",
+            font=("Arial", 14)
+        )
+        self.btn_back.pack(side="left")
+
+        # Page Title
         ctk.CTkLabel(
-            header_frame, text="DISCOVER UGAL: YOUR FUTURE", font=("Arial", 32, "bold"), text_color=TITLE_BLUE
-        ).pack()
-
-        # --- Main Content Frame (Styled background) ---
-        self.content_frame = ctk.CTkFrame(self, fg_color=ACCENT_COLOR, corner_radius=15)
-        self.content_frame.pack(pady=10, padx=40, fill='x', expand=False)
-        
-        # Column 0: Image (Left) - Uses inner padding for margin
-        self.image_label = ctk.CTkLabel(self.content_frame, text="", image=None)
-        self.image_label.grid(row=0, column=0, padx=(20, 15), pady=20, sticky="nsw") 
-
-        # Column 1: Description (Right)
-        # Bolder, larger title
-        self.description_title_label = ctk.CTkLabel(
-            self.content_frame, 
-            text="", 
+            header_frame, 
+            text="DISCOVER UGAL", 
             font=("Arial", 24, "bold"), 
-            justify=ctk.LEFT,
-            wraplength=350,
+            text_color=TITLE_BLUE
+        ).pack(side="left", padx=20)
+
+        # --- 2. Main Content Card ---
+        self.content_card = ctk.CTkFrame(self, fg_color=ACCENT_COLOR, corner_radius=15)
+        self.content_card.grid(row=1, column=0, sticky="nsew", padx=40, pady=10)
+        
+        self.content_card.grid_columnconfigure(0, weight=0) # Image column fixed width
+        self.content_card.grid_columnconfigure(1, weight=1) # Text column expands
+        self.content_card.grid_rowconfigure(0, weight=1)
+
+        # Image (Left)
+        self.image_label = ctk.CTkLabel(self.content_card, text="", image=None)
+        self.image_label.grid(row=0, column=0, padx=20, pady=20)
+
+        # Text Container (Right)
+        text_frame = ctk.CTkFrame(self.content_card, fg_color="transparent")
+        text_frame.grid(row=0, column=1, sticky="nw", padx=(0, 20), pady=25)
+
+        # Title
+        self.slide_title = ctk.CTkLabel(
+            text_frame, 
+            text="", 
+            font=("Arial", 26, "bold"), 
+            justify="left",
+            anchor="w",
             text_color=TITLE_BLUE
         )
-        self.description_title_label.grid(row=0, column=1, padx=(15, 20), pady=(20, 5), sticky="nw")
+        self.slide_title.pack(fill="x", pady=(0, 15)) # Increased pady for separation
         
-        # Readable description text
-        self.description_text_label = ctk.CTkLabel(
-            self.content_frame, 
+        # Description
+        self.slide_desc = ctk.CTkLabel(
+            text_frame, 
             text="", 
             font=("Arial", 16), 
-            justify=ctk.LEFT,
-            wraplength=350
+            justify="left",
+            anchor="w",
+            wraplength=380, # Hard limit to prevent expansion
+            text_color=TEXT_COLOR
+            # Removed 'line_spacing' as it causes errors in CTk
         )
-        self.description_text_label.grid(row=0, column=1, padx=(15, 20), pady=(50, 20), sticky="nw")
+        self.slide_desc.pack(fill="x")
 
-        # --- Navigation Buttons positioned below the content frame ---
-        
-        nav_frame = ctk.CTkFrame(self, fg_color="transparent")
-        nav_frame.pack(pady=(20, 10))
+        # --- 3. Footer Navigation (Compact) ---
+        nav_frame = ctk.CTkFrame(self, fg_color="transparent", height=50)
+        nav_frame.grid(row=2, column=0, sticky="ew", padx=40, pady=(0, 15))
 
-        # Previous Button - Wider and more prominent
+        # Centering container for nav buttons
+        nav_center = ctk.CTkFrame(nav_frame, fg_color="transparent")
+        nav_center.pack(anchor="center")
+
+        # Prev Button
         ctk.CTkButton(
-            nav_frame,
-            text="< PREVIOUS",
+            nav_center,
+            text="<",
             command=self.show_previous_image,
-            width=140,
-            height=45,
-            font=("Arial", 16, "bold")
-        ).grid(row=0, column=0, padx=30)
+            width=50,
+            height=40,
+            font=("Arial", 20, "bold"),
+            fg_color="#444",
+            hover_color="#555"
+        ).pack(side="left", padx=10)
 
-        # Slide Indicator Label
+        # Indicator
         self.indicator_label = ctk.CTkLabel(
-            nav_frame, text=f"Slide 1 of {len(IMAGE_PATHS)}", font=("Arial", 18, "bold")
+            nav_center, 
+            text="1 / 3", 
+            font=("Arial", 16, "bold"),
+            text_color="#888",
+            width=80
         )
-        self.indicator_label.grid(row=0, column=1, padx=30)
+        self.indicator_label.pack(side="left", padx=10)
 
-        # Next Button - Wider and more prominent
+        # Next Button
         ctk.CTkButton(
-            nav_frame,
-            text="NEXT >",
+            nav_center,
+            text=">",
             command=self.show_next_image,
-            width=140,
-            height=45,
-            font=("Arial", 16, "bold")
-        ).grid(row=0, column=2, padx=30)
+            width=50,
+            height=40,
+            font=("Arial", 20, "bold"),
+            fg_color="#444",
+            hover_color="#555"
+        ).pack(side="left", padx=10)
         
-        # Back Button (Bottom)
-        ctk.CTkButton(
-            self,
-            text="< Back to Home",
-            command=self.controller.show_home,
-            width=220,
-            height=45,
-            font=("Arial", 18, "bold")
-        ).pack(pady=(10, 20))
-        
-        # Initial display
+        # Initialize
         self.update_content()
 
     def update_content(self):
-        """Updates the displayed image, title, description, and indicator."""
+        """Updates UI with current slide data."""
         index = self.current_image_index
         slide = INFO_SLIDES[index]
         
         # Update Image
         if self.tk_images:
-            img = self.tk_images[index]
-            self.image_label.configure(image=img)
-            self.image_label.image = img 
+            self.image_label.configure(image=self.tk_images[index])
             
-        # Update Title and Description
-        self.description_title_label.configure(text=slide["title"])
-        self.description_text_label.configure(text=slide["description"])
+        # Update Text
+        self.slide_title.configure(text=slide["title"])
+        self.slide_desc.configure(text=slide["description"])
             
         # Update Indicator
-        self.indicator_label.configure(
-            text=f"Slide {index + 1} of {len(IMAGE_PATHS)}"
-        )
+        self.indicator_label.configure(text=f"{index + 1} / {len(IMAGE_PATHS)}")
 
     def show_next_image(self):
         self.current_image_index = (self.current_image_index + 1) % len(IMAGE_PATHS)

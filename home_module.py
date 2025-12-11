@@ -69,8 +69,11 @@ class HomeView(ctk.CTkFrame):
             self,
             text="Settings",
             command=self.show_settings, # Calls the new navigation method
-            width=80,
-            height=25
+            width=85,
+            height=30,
+            font=("Arial", 18),
+            fg_color="#333",
+            hover_color="#444"
         )
         # Position in the top-right corner
         settings_button.place(relx=1.0, rely=0.0, x=-20, y=20, anchor=tk.NE)
