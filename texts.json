@@ -17,14 +17,17 @@
         "success_title": "Felicitări!",
         "check_email": "Verifică email-ul pentru graficul detaliat.",
         "restart": "START SESIUNE NOUĂ",
+        
         "spec_cti": "CALCULATOARE (CTI)",
         "spec_aia": "AUTOMATICĂ (AIA)",
         "spec_el": "INGINERIE ELECTRICĂ",
-        "spec_mec": "INGINERIE MECANICĂ",
-        "desc_cti": "Profil: Software, Algoritmi & Data Science",
-        "desc_aia": "Profil: Robotică, Controlul Sistemelor & AI Aplicat",
-        "desc_el":  "Profil: Hardware, Circuite & Energetică",
-        "desc_mec": "Profil: Mecanică, Motoare & Proiectare 3D",
+        "spec_etti": "ELECTRONICĂ ȘI TELECOMUNICAȚII",
+
+        "desc_cti": "Profil: Programare, Algoritmi, Web & AI",
+        "desc_aia": "Profil: Robotică, Smart Home & Controlul Sistemelor",
+        "desc_el":  "Profil: Energetică, Motoare Electrice & Rețele",
+        "desc_etti": "Profil: Circuite, Antene, 5G & Microcipuri",
+
         "email_sub": "Raport Evaluare Aptitudini",
         "email_body": "Rezultatul evaluării tale:\nSpecializare: {}\n{}\n\nCoordonate Grafic:\nX={:.2f}, Y={:.2f}"
     },
@@ -46,14 +49,17 @@
         "success_title": "Congratulations!",
         "check_email": "Check your inbox for the detailed chart.",
         "restart": "START NEW SESSION",
+
         "spec_cti": "COMPUTER SCIENCE (CTI)",
         "spec_aia": "AUTOMATION (AIA)",
-        "spec_el": "ELECTRICAL ENG.",
-        "spec_mec": "MECHANICAL ENG.",
-        "desc_cti": "Profile: Software, Algorithms & Data Science",
-        "desc_aia": "Profile: Robotics, System Control & Applied AI",
-        "desc_el":  "Profile: Hardware, Circuits & Power",
-        "desc_mec": "Profile: Mechanics, Engines & 3D Design",
+        "spec_el": "ELECTRICAL ENGINEERING",
+        "spec_etti": "ELECTRONICS & TELECOM",
+
+        "desc_cti": "Profile: Coding, Algorithms, Web & AI",
+        "desc_aia": "Profile: Robotics, Smart Home & System Control",
+        "desc_el":  "Profile: Power Grids, Motors & Energy",
+        "desc_etti": "Profile: Circuits, Antennas, 5G & Microchips",
+
         "email_sub": "Aptitude Assessment Report",
         "email_body": "Your assessment result:\nSpecialization: {}\n{}\n\nGraph Coordinates:\nX={:.2f}, Y={:.2f}"
     },
@@ -75,14 +81,17 @@
         "success_title": "Поздравляем!",
         "check_email": "Проверьте почту для получения графика.",
         "restart": "НОВАЯ СЕССИЯ",
+
         "spec_cti": "ВЫЧИСЛИТЕЛЬНАЯ ТЕХНИКА (CTI)",
         "spec_aia": "АВТОМАТИКА (AIA)",
         "spec_el": "ЭЛЕКТРОТЕХНИКА",
-        "spec_mec": "МЕХАНИКА",
-        "desc_cti": "Профиль: ПО, Алгоритмы и Data Science",
+        "spec_etti": "ЭЛЕКТРОНИКА И ТЕЛЕКОММУНИКАЦИИ",
+
+        "desc_cti": "Профиль: Программирование, Алгоритмы и ИИ",
         "desc_aia": "Профиль: Робототехника и Управление Системами",
-        "desc_el":  "Профиль: Аппаратное обеспечение и Цепи",
-        "desc_mec": "Профиль: Механика, Двигатели и 3D Проектирование",
+        "desc_el":  "Профиль: Энергетика, Электродвигатели и Сети",
+        "desc_etti": "Профиль: Схемы, Антенны, 5G и Микрочипы",
+
         "email_sub": "Отчет об оценке способностей",
         "email_body": "Результат вашей оценки:\nСпециальность: {}\n{}\n\nКоординаты:\nX={:.2f}, Y={:.2f}"
     }

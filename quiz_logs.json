@@ -1,0 +1,38 @@
+[
+    {
+        "timestamp": "2025-12-11 17:31:44",
+        "email": "gabrielmunt4@yahoo.com",
+        "rezultat": "CALCULATOARE (CTI)",
+        "coordonate": {
+            "x": 1.12,
+            "y": 1.92
+        }
+    },
+    {
+        "timestamp": "2025-12-11 17:33:14",
+        "email": "ioanacreteanu64@gmail.com",
+        "rezultat": "AUTOMATICĂ (AIA)",
+        "coordonate": {
+            "x": -5.92,
+            "y": 0.16
+        }
+    },
+    {
+        "timestamp": "2025-12-11 18:38:41",
+        "email": "galatzi20@gmail.com",
+        "rezultat": "AUTOMATION (AIA)",
+        "coordonate": {
+            "x": -0.56,
+            "y": 0.8
+        }
+    },
+    {
+        "timestamp": "2025-12-11 18:40:04",
+        "email": "galatzi20@gmail.com",
+        "rezultat": "AUTOMATICĂ (AIA)",
+        "coordonate": {
+            "x": -0.16,
+            "y": 5.28
+        }
+    }
+]
