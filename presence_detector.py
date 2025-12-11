@@ -3,6 +3,7 @@ import time
 import sys
 import traceback
 import os
+import threading
 
 # --- CONFIGURARE HARDWARE ---
 USE_RASPBERRY_PI = True  
@@ -13,14 +14,15 @@ CASCADE_FILENAME = "haarcascade_frontalface_default.xml"
 class PresenceDetector:
     def __init__(self, on_detect_callback=None, show_preview=True):
         """
-        :param show_preview: Dacă True, deschide o fereastră externă cu feed-ul camerei.
+        :param on_detect_callback: Funcția apelată la detectarea prezenței.
+        :param show_preview: Dacă True, afișează fereastra de debug.
         """
         self.on_detect_callback = on_detect_callback
-        self.show_preview = show_preview  # Variabila de control
+        self.show_preview = show_preview
         self.running = False
         self.cascade_loaded = False
         
-        # Verificare existență fișier
+        # Verificare fișier XML
         if not os.path.exists(CASCADE_FILENAME):
             print(f"!!! EROARE CRITICĂ: Fișierul '{CASCADE_FILENAME}' lipsește!")
             return
@@ -34,27 +36,42 @@ class PresenceDetector:
         self.start_look_time = None
         self.action_triggered = False
         self.camera = None
+        
+        # Variabila pentru raw_capture nu mai este necesară la Picamera2 în același mod,
+        # dar o păstrăm null pentru compatibilitate logică.
         self.raw_capture = None
 
     def _init_camera(self):
-        print(f"Inițializare cameră (Preview={self.show_preview})...")
+        print(f"Inițializare cameră (Pi={USE_RASPBERRY_PI}, Preview={self.show_preview})...")
+        
         if USE_RASPBERRY_PI:
             try:
-                from picamera import PiCamera
-                from picamera.array import PiRGBArray
-                self.camera = PiCamera()
-                self.camera.resolution = (320, 240)
-                self.camera.framerate = 30
-                self.raw_capture = PiRGBArray(self.camera, size=(320, 240))
-                time.sleep(0.1)
+                # --- IMPLEMENTARE PICAMERA2 ---
+                from picamera2 import Picamera2
+                
+                self.camera = Picamera2()
+                
+                # Configurăm o rezoluție mică pentru performanță (320x240)
+                # Formatul 'RGB888' este standard, vom converti la BGR pentru OpenCV
+                config = self.camera.create_configuration(main={"size": (320, 240), "format": "RGB888"})
+                self.camera.configure(config)
+                self.camera.start() # Pornim motorul camerei
+                
+                print("Picamera2 inițializată cu succes.")
                 return True
+                
             except ImportError:
-                print("Eroare: Modulul 'picamera' nu este instalat.")
+                print("Eroare: Biblioteca 'picamera2' nu este instalată (sudo apt install python3-picamera2).")
+                return False
+            except Exception as e:
+                print(f"Eroare la inițializarea Picamera2: {e}")
+                traceback.print_exc()
                 return False
         else:
-            self.camera = cv2.VideoCapture(1)
+            # --- IMPLEMENTARE WINDOWS / USB WEBCAM ---
+            self.camera = cv2.VideoCapture(0)
             if not self.camera.isOpened():
-                print("Eroare: Nu se poate deschide camera web.")
+                print("Eroare: Nu se poate deschide camera web (USB).")
                 return False
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -76,26 +93,22 @@ class PresenceDetector:
             total_area = frame_width * frame_height
             face_found_close = False
 
-            # Procesare fețe
             for (x, y, w, h) in faces:
-                # Dacă preview este activ, desenăm dreptunghiul
                 if self.show_preview:
                     cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
                 face_area = w * h
                 ratio = face_area / total_area
                 
-                # Afișăm procentul pe ecran dacă preview este activ
                 if self.show_preview:
                     cv2.putText(frame, f"Ratio: {ratio:.2f}", (x, y - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
                 if ratio >= FACE_AREA_THRESHOLD:
                     face_found_close = True
-                    # Luăm doar prima față relevantă
                     break
 
-            # Logică Trigger
+            # Logica de timp / trigger
             if face_found_close:
                 if self.start_look_time is None:
                     self.start_look_time = time.time()
@@ -107,17 +120,14 @@ class PresenceDetector:
                             self.on_detect_callback()
                         self.action_triggered = True
                         
-                    # Feedback vizual pentru trigger
                     if self.show_preview:
                         cv2.circle(frame, (30, 30), 20, (0, 0, 255), -1) 
             else:
                 self.start_look_time = None
                 self.action_triggered = False
 
-            # Afișare fereastră preview
             if self.show_preview:
                 cv2.imshow("Camera Preview (Debug)", frame)
-                # cv2.waitKey(1) este esențial pentru ca fereastra să se randeze
                 cv2.waitKey(1)
 
         except Exception as e:
@@ -133,20 +143,30 @@ class PresenceDetector:
 
         try:
             if USE_RASPBERRY_PI:
-                from picamera.array import PiRGBArray
-                for frame_pi in self.camera.capture_continuous(self.raw_capture, format="bgr", use_video_port=True):
-                    if not self.running: break
-                    self.process_frame(frame_pi.array)
-                    self.raw_capture.truncate(0)
+                # --- LOOP PENTRU PICAMERA2 ---
+                while self.running:
+                    # Capturăm imaginea ca array NumPy
+                    frame_rgb = self.camera.capture_array()
+                    
+                    # Picamera2 returnează RGB, OpenCV vrea BGR. Facem conversia.
+                    frame_bgr = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR)
+                    
+                    self.process_frame(frame_bgr)
+                    
+                    # O mică pauză pentru a nu bloca CPU-ul complet, deși capture_array e sincron
+                    time.sleep(0.01)
             else:
+                # --- LOOP PENTRU WINDOWS ---
                 while self.running:
                     ret, frame = self.camera.read()
                     if ret:
                         self.process_frame(frame)
                     else:
                         time.sleep(0.1)
+                        
         except Exception as e:
-            print(f"Eroare loop: {e}")
+            print(f"Eroare loop principal: {e}")
+            traceback.print_exc()
         finally:
             self._cleanup()
 
@@ -159,7 +179,19 @@ class PresenceDetector:
             cv2.destroyAllWindows()
             
         if USE_RASPBERRY_PI and self.camera:
-            try: self.camera.close()
-            except: pass
+            try:
+                self.camera.stop()
+                # self.camera.close() # Picamera2 nu are neapărat nevoie de close explicit la final de script, dar stop e bun.
+            except Exception as e:
+                print(f"Eroare la oprirea camerei: {e}")
         elif not USE_RASPBERRY_PI and self.camera:
             self.camera.release()
+
+if __name__ == "__main__":
+    # Testare individuală
+    print("Testare modul PresenceDetector...")
+    det = PresenceDetector(show_preview=True)
+    try:
+        det.start()
+    except KeyboardInterrupt:
+        det.stop()
