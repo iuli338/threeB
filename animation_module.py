@@ -3,6 +3,8 @@ from PIL import Image, ImageTk
 import threading
 import time
 import random
+import os
+import pygame
 from dataclasses import dataclass
 from typing import List
 from enum import Enum
@@ -101,6 +103,54 @@ class Character:
         self.image_cache = {}
         self.force_restart = False
         
+        # --- AUDIO INIT ---
+        try:
+            pygame.mixer.init()
+            self.audio_enabled = True
+        except Exception as e:
+            print(f"Audio init failed: {e}")
+            self.audio_enabled = False
+
+        # Load voice lines paths
+        self.voice_lines = {
+            "wakeup": self._load_voice_files("voicelines/wakeup"),
+            "normal": self._load_voice_files("voicelines/normal"),
+            "chemare": self._load_voice_files("voicelines/chemare")
+        }
+
+    def _load_voice_files(self, directory):
+        """Helper to get all .wav files from a directory."""
+        files = []
+        if os.path.exists(directory):
+            for file in os.listdir(directory):
+                if file.endswith(".wav"):
+                    files.append(os.path.join(directory, file))
+        return files
+
+    def play_voice(self, category):
+        """Plays a random sound from the category on a separate thread to avoid UI freeze."""
+        if not self.audio_enabled:
+            return
+
+        # Definim sarcina care va rula pe thread
+        def _audio_task():
+            # Verificam in thread daca e ocupat, pentru a fi siguri
+            if pygame.mixer.music.get_busy():
+                return
+
+            if category in self.voice_lines and self.voice_lines[category]:
+                sound_file = random.choice(self.voice_lines[category])
+                try:
+                    # Load si Play sunt operatiuni I/O care pot bloca putin, de aceea sunt in thread
+                    pygame.mixer.music.load(sound_file)
+                    pygame.mixer.music.play()
+                    print(f"Playing audio (threaded): {sound_file}")
+                except Exception as e:
+                    print(f"Error playing sound: {e}")
+
+        # Pornim thread-ul daemon (se inchide odata cu aplicatia daca e cazul)
+        threading.Thread(target=_audio_task, daemon=True).start()
+
     def load_image(self, path):
         if path not in self.image_cache:
             try:
@@ -115,6 +165,23 @@ class Character:
         """Main animation loop - Thread Safe"""
         while self.running:
             try:
+                # --- VERIFICARE AUDIO PENTRU "TALKING" ---
+                is_talking = False
+                # get_busy este thread-safe in general
+                if self.audio_enabled and pygame.mixer.music.get_busy():
+                    is_talking = True
+                
+                if is_talking:
+                    # Daca vorbeste, afisam "talk.png" si ignoram cadrul curent al animatiei
+                    tk_image = self.load_image("faces/talk.png")
+                    if tk_image and hasattr(self.app, 'winfo_exists') and self.app.winfo_exists():
+                         self.app.after(0, lambda img=tk_image: self._safe_gui_update(img))
+                    
+                    # Asteptam putin si verificam din nou (bucla scurta cat timp vorbeste)
+                    time.sleep(0.1)
+                    continue
+
+                # --- LOGICA NORMALA DE ANIMATIE ---
                 if self.force_restart:
                     self.force_restart = False
                     self.current_frame = 0
@@ -169,22 +236,37 @@ class Character:
                 self.change_state(State.NORMAL)
     
     def change_state(self, new_state: State):
+        # Daca trecem in starea CLICK_ME (trezire), redam sunetul wakeup
+        if new_state == State.CLICK_ME and self.current_state != State.CLICK_ME:
+            self.play_voice("wakeup")
+
         self.current_state = new_state
         self.current_frame = 0
         self.force_restart = True
         
     def behavior_loop(self):
         while self.running:
-            time.sleep(1)
+            time.sleep(1) # O data pe secunda
+            
             if self.current_state == State.NORMAL:
+                # 10% sansa sa spuna ceva (Normal sau Chemare)
+                if random.random() < 0.10:
+                    # Alegem random intre normal si chemare
+                    category = random.choice(["normal", "chemare"])
+                    self.play_voice(category)
+
+                # Logica existenta de looking around
                 if random.random() < 0.05:
                     self.change_state(State.LOOKING_AROUND)
+                
                 self.normal_timer += 1
                 if self.normal_timer >= SLEEP_IN_SECONDS:
                     self.change_state(State.SLEEPING)
                     self.normal_timer = 0
                     self.is_awake = False
+
             elif self.current_state == State.SLEEPING and not self.is_awake:
+                # Cand doarme nu spune nimic
                 if random.random() < 0.05:
                     self.change_state(State.LOOKING_AROUND_SLEEP)
                 
@@ -196,12 +278,19 @@ class Character:
     def on_click(self):
         if self.current_state == State.CLICK_ME:
             self.change_state(State.NORMAL)
+            # voiceline garantat la prima apasare
+            category = random.choice(["normal", "chemare"])
+            self.play_voice(category)
             self.normal_timer = 0
         elif self.current_state == State.NORMAL:
             self.change_state(State.WINKING)
             
     def stop(self):
         self.running = False
+        try:
+            pygame.mixer.quit()
+        except:
+            pass
 
 class AnimationView(ctk.CTkFrame):
     def __init__(self, parent, controller):

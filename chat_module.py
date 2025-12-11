@@ -15,8 +15,8 @@ from datetime import datetime
 # --- CONFIGURARE ENV ---
 load_dotenv()
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
-SENDER_EMAIL = os.getenv("EMAIL_USER")
-SENDER_PASSWORD = os.getenv("EMAIL_PASS")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
 
 # --- CONFIGURĂRI VIZUALE ---
 ctk.set_appearance_mode("Dark")
@@ -310,6 +310,7 @@ class ChatView(ctk.CTkFrame):
 
     def handle_report(self, text_content):
         """Functia apelata cand userul apasa 'Raporteaza'"""
+        print('pop')
         # 1. Afisam Pop-up-ul imediat
         self.show_popup_report()
         

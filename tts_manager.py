@@ -55,7 +55,7 @@ class TTSManager:
             if lang not in ['ro', 'en', 'ru']: lang = 'ro'
             
             tts = gTTS(text=text, lang=lang, slow=False)
-            tts.save(filename)
+            tts.save(f"audio/{filename}")
             success = True
             print("✅ Audio descărcat.")
         except Exception as e:

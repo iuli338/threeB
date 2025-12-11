@@ -107,16 +107,30 @@ class QuizBackend:
             except Exception: pass
 
         plt.figure(figsize=(8, 5.5), dpi=100)
+        
+        # 1. Desenăm Fundalul (Cadranele Colorate)
         plt.fill_between([0, 10], 0, 10, color='#E3F2FD', alpha=0.6)
         plt.fill_between([-10, 0], 0, 10, color='#F3E5F5', alpha=0.6)
         plt.fill_between([0, 10], -10, 0, color='#E0F2F1', alpha=0.6)
         plt.fill_between([-10, 0], -10, 0, color='#FFF3E0', alpha=0.6)
+        
+        # 2. Desenăm Axele
         plt.axhline(0, color='#546E7A', linewidth=1, linestyle='--')
         plt.axvline(0, color='#546E7A', linewidth=1, linestyle='--')
         plt.xlim(-11, 11); plt.ylim(-11, 11)
+
+        # 3. ADĂUGĂM ETICHETELE (Aceasta era partea lipsă)
+        font_style = {'weight': 'bold', 'size': 9, 'family': 'sans-serif'}
+        plt.text(9, 9, "CTI\n(Soft & Data)", ha='right', va='top', color='#1565C0', **font_style)
+        plt.text(-9, 9, "AIA\n(Robo & Sys)", ha='left', va='top', color='#6A1B9A', **font_style)
+        plt.text(9, -9, "ETTI\n(Signal & Chips)", ha='right', va='bottom', color='#00695C', **font_style)
+        plt.text(-9, -9, "ELECTRIC\n(Power & Grid)", ha='left', va='bottom', color='#EF6C00', **font_style)
         
+        # 4. Punem punctele utilizatorilor
         if points_x:
             plt.scatter(points_x, points_y, s=100, c='#1f6aa5', marker='o', alpha=0.6, edgecolors='white', linewidth=1, zorder=10)
+        
+        plt.title("Distribuția Participanților", pad=10, fontsize=12, fontweight='bold')
         
         filename = "collective_stats.png"
         plt.savefig(filename, bbox_inches='tight')
@@ -187,10 +201,10 @@ class QuizView(ctk.CTkFrame):
 
         btn_style = {"width": 250, "height": 45, "font": ("Arial", 16, "bold"), "corner_radius": 22}
         
-        ctk.CTkButton(frame, text="🇬🇧 ENGLISH", fg_color="#1f6aa5", command=lambda: self.set_lang("en"), **btn_style).pack(pady=8)
-        ctk.CTkButton(frame, text="🇷🇴 ROMÂNĂ", fg_color="#e67e22", command=lambda: self.set_lang("ro"), **btn_style).pack(pady=8)
+        ctk.CTkButton(frame, text="ENGLISH", fg_color="#1f6aa5", command=lambda: self.set_lang("en"), **btn_style).pack(pady=8)
+        ctk.CTkButton(frame, text="ROMÂNĂ", fg_color="#e67e22", command=lambda: self.set_lang("ro"), **btn_style).pack(pady=8)
         # SCHIMBAT DIN RUSĂ ÎN UCRAINEANĂ
-        ctk.CTkButton(frame, text="🇺🇦 УКРАЇНСЬКА", fg_color="#F1C40F", text_color="black", command=lambda: self.set_lang("ua"), **btn_style).pack(pady=8)
+        ctk.CTkButton(frame, text="УКРАЇНСЬКА", fg_color="#F1C40F", text_color="black", command=lambda: self.set_lang("ua"), **btn_style).pack(pady=8)
 
         # BUTON BACK TO HOME
         ctk.CTkButton(frame, text="⬅ HOME / MENIU", fg_color="transparent", border_width=1, border_color="white",

@@ -7,7 +7,7 @@ from setting_module import SettingsView
 from info_module import InfoView
 from presence_detector import shutdown_camera
 
-SKIP_INTRO = True
+SKIP_INTRO = False
 IS_FULLSCREEN = True
 
 class MainController(ctk.CTk):

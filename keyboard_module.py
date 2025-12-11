@@ -26,7 +26,7 @@ class TouchKeyboard(ctk.CTkFrame):
             row_frame.pack(pady=2, expand=True)
             for key in row:
                 # Dimensiuni și culori standard
-                w, h = 55, 45
+                w, h = 55, 40
                 fg = "#333"
                 cmd = lambda k=key: self.press_key(k)
                 
@@ -69,5 +69,5 @@ class TouchKeyboard(ctk.CTkFrame):
         self.place_forget()
 
     def show(self): 
-        self.place(relx=0.5, rely=1.0, anchor="s", relwidth=1.0, relheight=0.45)
+        self.place(relx=0.5, rely=1.0, anchor="s", relwidth=1.0, relheight=0.5)
         self.tkraise()
