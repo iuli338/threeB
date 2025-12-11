@@ -7,6 +7,10 @@ from dataclasses import dataclass
 from typing import List
 from enum import Enum
 
+# --- IMPORT NOU ---
+# Asigură-te că presence_detector.py este în același director
+from presence_detector import PresenceDetector
+
 # --- CONSTANTE ȘI STRUCTURI DE DATE ---
 SLEEP_IN_SECONDS = 60
 
@@ -166,11 +170,8 @@ class Character:
             self.change_state(State.NORMAL)
 
         elif self.current_state == State.WINKING:
-            # --- MODIFICARE AICI ---
-            # Când termină de făcut cu ochiul, navigăm la Home
             print("Wink finished. Going to Home.")
             if hasattr(self.app, 'navigate_to_home'):
-                # Folosim .after pentru a fi siguri că rulăm pe main thread
                 self.app.after(0, self.app.navigate_to_home)
             else:
                 self.change_state(State.NORMAL)
@@ -205,7 +206,6 @@ class Character:
             self.change_state(State.NORMAL)
             self.normal_timer = 0
         elif self.current_state == State.NORMAL:
-            # Click -> Wink -> (apoi on_animation_complete va schimba pagina)
             self.change_state(State.WINKING)
             
     def stop(self):
@@ -225,16 +225,29 @@ class AnimationView(ctk.CTkFrame):
         
         # BINDINGS
         self.image_label.bind("<Button-1>", self.on_image_click)
-        
-        # Optional: Păstrăm și double click dacă vrei navigare instantanee
         self.image_label.bind("<Double-Button-1>", self.on_double_click)
         
+        # Threads pentru animație și comportament
         self.animation_thread = threading.Thread(target=self.character.run_animation, daemon=True)
         self.behavior_thread = threading.Thread(target=self.character.behavior_loop, daemon=True)
         self.animation_thread.start()
         self.behavior_thread.start()
         
         self.controller.bind("<space>", self.on_space_key)
+
+        # --- INTEGRARE DETECTOR PREZENȚĂ ---
+        # Inițializăm detectorul și îi pasăm funcția de callback pentru thread-safety
+        self.detector = PresenceDetector(on_detect_callback=self.thread_safe_wakeup)
+        self.detector_thread = threading.Thread(target=self.detector.start, daemon=True)
+        self.detector_thread.start()
+
+    def thread_safe_wakeup(self):
+        """
+        Funcție helper apelată din thread-ul detectorului.
+        Folosește .after() pentru a executa logica pe thread-ul principal Tkinter.
+        """
+        if hasattr(self, 'winfo_exists') and self.winfo_exists():
+            self.after(0, self.character.wake_up)
 
     def on_image_click(self, event):
         self.character.on_click()
@@ -251,5 +264,9 @@ class AnimationView(ctk.CTkFrame):
         self.character.wake_up()
 
     def cleanup(self):
+        # Oprim detectorul dacă există
+        if hasattr(self, 'detector'):
+            self.detector.stop()
+            
         self.character.stop()
         self.controller.unbind("<space>")

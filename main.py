@@ -6,12 +6,12 @@ from chat_module import ChatView  # Import the new module
 class MainController(ctk.CTk):
     def __init__(self):
         super().__init__()
-        
+
         # Window Configuration
         self.title("3B Intelligent Interface")
         self.geometry("800x480")
-        self.overrideredirect(True)
-        self.attributes("-fullscreen", True)
+        #self.overrideredirect(True)
+        #self.attributes("-fullscreen", True)
         self.resizable(False, False)
         
         # Theme
