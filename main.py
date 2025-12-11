@@ -10,8 +10,8 @@ class MainController(ctk.CTk):
         # Window Configuration
         self.title("3B Intelligent Interface")
         self.geometry("800x480")
-        self.overrideredirect(True)
-        self.attributes("-fullscreen", True)
+        ##self.overrideredirect(True)
+        ##self.attributes("-fullscreen", True)
         self.resizable(False, False)
         
         # Theme
