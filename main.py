@@ -1,7 +1,8 @@
 import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
-from chat_module import ChatView  # Import the new module
+from chat_module import ChatView
+from quiz import QuizView
 
 class MainController(ctk.CTk):
     def __init__(self):
@@ -10,9 +11,9 @@ class MainController(ctk.CTk):
         # Window Configuration
         self.title("3B Intelligent Interface")
         self.geometry("800x480")
-        self.overrideredirect(True)
-        self.attributes("-fullscreen", True)
-        self.resizable(False, False)
+        
+        #self.attributes("-fullscreen", True)
+        #self.resizable(False, False)
         
         # Theme
         ctk.set_appearance_mode("dark")
@@ -42,6 +43,9 @@ class MainController(ctk.CTk):
         
     def show_chat(self):
         self._switch_view(ChatView)
+
+    def show_quiz(self):  # <--- METODA NOUĂ
+        self._switch_view(QuizView)
         
     def close_app(self, event=None):
         print("Shutting down...")

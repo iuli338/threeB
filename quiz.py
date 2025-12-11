@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from PIL import Image # <--- NECESAR PENTRU AFIȘAREA IMAGINII ÎN APLICAȚIE
+from PIL import Image
 import matplotlib
 matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
@@ -17,40 +17,35 @@ LOG_FILE = "quiz_logs.json"
 
 TEXTS = {}
 
-# --- ÎNCĂRCARE JSON ---
 def load_texts():
     global TEXTS
     try:
         with open("texts.json", "r", encoding="utf-8") as f:
             TEXTS = json.load(f)
-    except FileNotFoundError:
-        print("❌ EROARE: Fișierul 'texts.json' lipsește!")
-        sys.exit()
-    except json.JSONDecodeError:
-        print("❌ EROARE: Format JSON invalid.")
-        sys.exit()
+    except Exception as e:
+        print(f"Error loading texts: {e}")
+        TEXTS = {} # Fallback gol
 
-# --- BAZA DE DATE ÎNTREBĂRI ---
+# --- INTREBARI (CU LIMBA UCRAINEANĂ) ---
 INTREBARI_DATA = [
-    # --- GRUP 1: CTI ---
-    {"ro": "Îți place să rezolvi probleme logice complexe doar scriind cod?", "en": "Do you enjoy solving complex logical problems just by writing code?", "ru": "Вам нравится решать сложные логические задачи только с помощью кода?", "wx": 1.0, "wy": 1.0},
-    {"ro": "Ești pasionat de cum funcționează un site web, o bază de date sau un AI?", "en": "Are you passionate about how a website, database, or AI works?", "ru": "Вас увлекает, как работают веб-сайты, базы данных или ИИ?", "wx": 1.0, "wy": 1.0},
-    {"ro": "Preferi să lucrezi exclusiv pe calculator, fără să atingi fire sau piese?", "en": "Do you prefer working exclusively on a computer without touching wires or parts?", "ru": "Вы предпочитаете работать только на компьютере, не касаясь проводов и деталей?", "wx": 1.0, "wy": 1.0},
-    # --- GRUP 2: AIA ---
-    {"ro": "Vrei să programezi roboți fizici care se mișcă și interacționează cu lumea?", "en": "Do you want to program physical robots that move and interact with the world?", "ru": "Вы хотите программировать физических роботов, которые двигаются и взаимодействуют с миром?", "wx": -0.8, "wy": 1.0},
-    {"ro": "Te interesează cum se automatizează o casă (Smart Home) sau o fabrică?", "en": "Are you interested in how to automate a house (Smart Home) or a factory?", "ru": "Вам интересно, как автоматизировать дом (Умный дом) или завод?", "wx": -0.5, "wy": 0.8},
-    {"ro": "Îți place ideea de a combina programarea cu senzorii și motoarele?", "en": "Do you like the idea of combining programming with sensors and motors?", "ru": "Вам нравится идея объединения программирования с датчиками и моторами?", "wx": -0.5, "wy": 1.0},
-    # --- GRUP 3: ELECTRICĂ ---
-    {"ro": "Ești curios cum se produce energia electrică (eoliană, solară, nucleară)?", "en": "Are you curious about how electricity is generated (wind, solar, nuclear)?", "ru": "Вам интересно, как производится электроэнергия (ветровая, солнечная, ядерная)?", "wx": -1.0, "wy": -1.0},
-    {"ro": "Te fascinează motoarele electrice mari și infrastructura de înaltă tensiune?", "en": "Do large electric motors and high-voltage infrastructure fascinate you?", "ru": "Вас восхищают большие электродвигатели и высоковольтная инфраструктура?", "wx": -1.0, "wy": -1.0},
-    {"ro": "Vrei să proiectezi instalații electrice pentru clădiri sau orașe?", "en": "Do you want to design electrical installations for buildings or cities?", "ru": "Вы хотите проектировать электрические установки для зданий или городов?", "wx": -1.0, "wy": -0.8},
-    # --- GRUP 4: ELECTRONICĂ ---
-    {"ro": "Îți place să lipești piese mărunte pe plăci de circuite (cipuri, tranzistori)?", "en": "Do you like soldering small parts onto circuit boards (chips, transistors)?", "ru": "Вам нравится паять мелкие детали на печатные платы (чипы, транзисторы)?", "wx": 1.0, "wy": -1.0},
-    {"ro": "Ești curios cum funcționează semnalul 5G, Wi-Fi și antenele?", "en": "Are you curious about how 5G signals, Wi-Fi, and antennas work?", "ru": "Вам интересно, как работают сигналы 5G, Wi-Fi и антенны?", "wx": 1.0, "wy": -0.8},
-    {"ro": "Te pasionează prelucrarea semnalelor audio/video și microprocesoarele?", "en": "Are you passionate about audio/video signal processing and microprocessors?", "ru": "Вы увлекаетесь обработкой аудио/видео сигналов и микропроцессорами?", "wx": 1.0, "wy": -0.8}
+    # CTI
+    {"ro": "Îți place să rezolvi probleme logice complexe doar scriind cod?", "en": "Do you enjoy solving complex logical problems just by writing code?", "ua": "Вам подобається вирішувати складні логічні задачі за допомогою коду?", "wx": 1.0, "wy": 1.0},
+    {"ro": "Ești pasionat de cum funcționează un site web, o bază de date sau un AI?", "en": "Are you passionate about how a website, database, or AI works?", "ua": "Ви захоплюєтеся тим, як працюють веб-сайти, бази даних або ШІ?", "wx": 1.0, "wy": 1.0},
+    {"ro": "Preferi să lucrezi exclusiv pe calculator, fără să atingi fire sau piese?", "en": "Do you prefer working exclusively on a computer without touching wires or parts?", "ua": "Ви віддаєте перевагу роботі виключно за комп'ютером, не торкаючись дротів?", "wx": 1.0, "wy": 1.0},
+    # AIA
+    {"ro": "Vrei să programezi roboți fizici care se mișcă și interacționează cu lumea?", "en": "Do you want to program physical robots that move and interact with the world?", "ua": "Ви хочете програмувати фізичних роботів, які рухаються та взаємодіють зі світом?", "wx": -0.8, "wy": 1.0},
+    {"ro": "Te interesează cum se automatizează o casă (Smart Home) sau o fabrică?", "en": "Are you interested in how to automate a house (Smart Home) or a factory?", "ua": "Вам цікаво, як автоматизувати будинок (Smart Home) або завод?", "wx": -0.5, "wy": 0.8},
+    {"ro": "Îți place ideea de a combina programarea cu senzorii și motoarele?", "en": "Do you like the idea of combining programming with sensors and motors?", "ua": "Вам подобається ідея поєднання програмування з датчиками та моторами?", "wx": -0.5, "wy": 1.0},
+    # ELECTRICĂ
+    {"ro": "Ești curios cum se produce energia electrică (eoliană, solară, nucleară)?", "en": "Are you curious about how electricity is generated (wind, solar, nuclear)?", "ua": "Вам цікаво, як виробляється електроенергія (вітрова, сонячна, ядерна)?", "wx": -1.0, "wy": -1.0},
+    {"ro": "Te fascinează motoarele electrice mari și infrastructura de înaltă tensiune?", "en": "Do large electric motors and high-voltage infrastructure fascinate you?", "ua": "Вас захоплюють великі електродвигуни та високовольтна інфраструктура?", "wx": -1.0, "wy": -1.0},
+    {"ro": "Vrei să proiectezi instalații electrice pentru clădiri sau orașe?", "en": "Do you want to design electrical installations for buildings or cities?", "ua": "Ви хочете проектувати електричні установки для будівель або міст?", "wx": -1.0, "wy": -0.8},
+    # ELECTRONICĂ
+    {"ro": "Îți place să lipești piese mărunte pe plăci de circuite (cipuri, tranzistori)?", "en": "Do you like soldering small parts onto circuit boards (chips, transistors)?", "ua": "Вам подобається паяти дрібні деталі на платах (чіпи, транзистори)?", "wx": 1.0, "wy": -1.0},
+    {"ro": "Ești curios cum funcționează semnalul 5G, Wi-Fi și antenele?", "en": "Are you curious about how 5G signals, Wi-Fi, and antennas work?", "ua": "Вам цікаво, як працюють сигнали 5G, Wi-Fi та антени?", "wx": 1.0, "wy": -0.8},
+    {"ro": "Te pasionează prelucrarea semnalelor audio/video și microprocesoarele?", "en": "Are you passionate about audio/video signal processing and microprocessors?", "ua": "Ви захоплюєтеся обробкою аудіо/відео сигналів та мікропроцесорами?", "wx": 1.0, "wy": -0.8}
 ]
 
-# --- BACKEND ---
 class QuizBackend:
     @staticmethod
     def calculeaza_coordonate(raspunsuri):
@@ -74,8 +69,8 @@ class QuizBackend:
         else: return t["spec_el"], t["desc_el"]
 
     @staticmethod
-    def _deseneaza_fundal_grafic():
-        """Funcție ajutătoare pentru a desena fundalul comun."""
+    def genereaza_grafic(x, y):
+        plt.figure(figsize=(8, 8), dpi=90)
         plt.fill_between([0, 10], 0, 10, color='#E3F2FD', alpha=0.6)
         plt.fill_between([-10, 0], 0, 10, color='#F3E5F5', alpha=0.6)
         plt.fill_between([0, 10], -10, 0, color='#E0F2F1', alpha=0.6)
@@ -86,17 +81,11 @@ class QuizBackend:
         plt.xlim(-11, 11); plt.ylim(-11, 11)
         
         font_style = {'weight': 'bold', 'size': 10, 'family': 'sans-serif'}
-        plt.text(9, 9, "CTI\n(Soft)", ha='right', va='top', color='#1565C0', **font_style)
-        plt.text(-9, 9, "AIA\n(Robo)", ha='left', va='top', color='#6A1B9A', **font_style)
-        plt.text(9, -9, "ELECTRONICĂ\n(Signal)", ha='right', va='bottom', color='#00695C', **font_style)
-        plt.text(-9, -9, "ELECTRICĂ\n(Power)", ha='left', va='bottom', color='#EF6C00', **font_style)
+        plt.text(9, 9, "CTI\n(Soft & Data)", ha='right', va='top', color='#1565C0', **font_style)
+        plt.text(-9, 9, "AIA\n(Robo & Sys)", ha='left', va='top', color='#6A1B9A', **font_style)
+        plt.text(9, -9, "ETTI\n(Signal & Chips)", ha='right', va='bottom', color='#00695C', **font_style)
+        plt.text(-9, -9, "ELECTRIC\n(Power & Grid)", ha='left', va='bottom', color='#EF6C00', **font_style)
 
-    @staticmethod
-    def genereaza_grafic(x, y):
-        """Grafic pentru UN singur utilizator (de trimis pe mail)."""
-        plt.figure(figsize=(8, 8), dpi=90)
-        QuizBackend._deseneaza_fundal_grafic()
-        
         plt.scatter(x, y, s=300, c='#D32F2F', marker='X', edgecolors='white', linewidth=2, zorder=10)
         
         filename = "temp_chart.png"
@@ -106,11 +95,8 @@ class QuizBackend:
 
     @staticmethod
     def genereaza_grafic_colectiv():
-        """Citește log-urile și pune TOATE punctele pe grafic."""
         points_x = []
         points_y = []
-
-        # 1. Citim datele din JSON
         if os.path.exists(LOG_FILE):
             try:
                 with open(LOG_FILE, "r", encoding="utf-8") as f:
@@ -118,15 +104,17 @@ class QuizBackend:
                     for entry in data:
                         points_x.append(entry["coordonate"]["x"])
                         points_y.append(entry["coordonate"]["y"])
-            except Exception:
-                pass # Dacă e eroare, afișăm grafic gol
+            except Exception: pass
 
-        # 2. Desenăm
-        plt.figure(figsize=(8, 5.5), dpi=100) # Format puțin mai lat pentru ecran
-        QuizBackend._deseneaza_fundal_grafic()
-        plt.title("Distribuția Tuturor Participanților", pad=10, fontsize=12, fontweight='bold')
-
-        # Punem punctele (semi-transparente ca să se vadă aglomerările)
+        plt.figure(figsize=(8, 5.5), dpi=100)
+        plt.fill_between([0, 10], 0, 10, color='#E3F2FD', alpha=0.6)
+        plt.fill_between([-10, 0], 0, 10, color='#F3E5F5', alpha=0.6)
+        plt.fill_between([0, 10], -10, 0, color='#E0F2F1', alpha=0.6)
+        plt.fill_between([-10, 0], -10, 0, color='#FFF3E0', alpha=0.6)
+        plt.axhline(0, color='#546E7A', linewidth=1, linestyle='--')
+        plt.axvline(0, color='#546E7A', linewidth=1, linestyle='--')
+        plt.xlim(-11, 11); plt.ylim(-11, 11)
+        
         if points_x:
             plt.scatter(points_x, points_y, s=100, c='#1f6aa5', marker='o', alpha=0.6, edgecolors='white', linewidth=1, zorder=10)
         
@@ -169,14 +157,12 @@ class QuizBackend:
         except Exception as e:
             return False, str(e)
 
-# --- GUI ---
-class App(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("Engineering Compass")
-        self.geometry("800x480")
-        ctk.set_appearance_mode("Dark") 
-        ctk.set_default_color_theme("dark-blue")
+# --- QUIZ VIEW CLASS (MODUL INTEGRAT) ---
+class QuizView(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+        self.pack(fill="both", expand=True)
 
         self.lang = "en" 
         self.backend = QuizBackend()
@@ -191,25 +177,29 @@ class App(ctk.CTk):
         for widget in self.winfo_children():
             widget.destroy()
 
-    # --- 1. LANGUAGE ---
     def show_language_screen(self):
         self.clean_frame()
         frame = ctk.CTkFrame(self, fg_color="transparent")
         frame.place(relx=0.5, rely=0.5, anchor="center")
 
         ctk.CTkLabel(frame, text="Engineering Compass", font=("Roboto", 32, "bold")).pack(pady=(0, 10))
-        ctk.CTkLabel(frame, text="Select Language / Alege Limba", font=("Arial", 14), text_color="gray").pack(pady=(0, 20))
+        ctk.CTkLabel(frame, text="Select Language", font=("Arial", 14), text_color="gray").pack(pady=(0, 20))
 
         btn_style = {"width": 250, "height": 45, "font": ("Arial", 16, "bold"), "corner_radius": 22}
+        
         ctk.CTkButton(frame, text="🇬🇧 ENGLISH", fg_color="#1f6aa5", command=lambda: self.set_lang("en"), **btn_style).pack(pady=8)
         ctk.CTkButton(frame, text="🇷🇴 ROMÂNĂ", fg_color="#e67e22", command=lambda: self.set_lang("ro"), **btn_style).pack(pady=8)
-        ctk.CTkButton(frame, text="🇷🇺 РУССКИЙ", fg_color="#c0392b", command=lambda: self.set_lang("ru"), **btn_style).pack(pady=8)
+        # SCHIMBAT DIN RUSĂ ÎN UCRAINEANĂ
+        ctk.CTkButton(frame, text="🇺🇦 УКРАЇНСЬКА", fg_color="#F1C40F", text_color="black", command=lambda: self.set_lang("ua"), **btn_style).pack(pady=8)
+
+        # BUTON BACK TO HOME
+        ctk.CTkButton(frame, text="⬅ HOME / MENIU", fg_color="transparent", border_width=1, border_color="white",
+                      width=200, height=35, command=self.controller.show_home).pack(pady=(30, 0))
 
     def set_lang(self, lang_code):
         self.lang = lang_code
         self.start_quiz()
 
-    # --- 2. QUESTIONS ---
     def start_quiz(self):
         self.current_question_index = 0
         self.user_answers = []
@@ -227,7 +217,7 @@ class App(ctk.CTk):
         card.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.85, relheight=0.9)
 
         prog_txt = t["progress"].format(self.current_question_index + 1, len(INTREBARI_DATA))
-        ctk.CTkLabel(card, text=prog_txt, font=("Roboto Medium", 20), text_color="#1f6aa5").pack(pady=(85, 35))
+        ctk.CTkLabel(card, text=prog_txt, font=("Roboto Medium", 20), text_color="#1f6aa5").pack(pady=(30, 10))
 
         progress_val = (self.current_question_index + 1) / len(INTREBARI_DATA)
         pb = ctk.CTkProgressBar(card, width=300, height=6, corner_radius=3, progress_color="#1f6aa5")
@@ -235,7 +225,7 @@ class App(ctk.CTk):
         pb.set(progress_val)
 
         q_text = INTREBARI_DATA[self.current_question_index][self.lang]
-        ctk.CTkLabel(card, text=q_text, font=("Roboto Medium", 20), wraplength=600, justify="center").pack(pady=(40, 10))
+        ctk.CTkLabel(card, text=q_text, font=("Roboto Medium", 20), wraplength=600, justify="center").pack(pady=(20, 10))
 
         options_frame = ctk.CTkFrame(card, fg_color="transparent")
         options_frame.pack(pady=(30, 15))
@@ -267,7 +257,6 @@ class App(ctk.CTk):
         else:
             self.show_email_page()
 
-    # --- 3. EMAIL ---
     def show_email_page(self):
         self.clean_frame()
         t = TEXTS[self.lang]
@@ -304,7 +293,6 @@ class App(ctk.CTk):
     def process_backend(self, raspunsuri, email):
         x, y = self.backend.calculeaza_coordonate(raspunsuri)
         spec, desc = self.backend.obtine_rezultat_text(x, y, self.lang)
-        
         self.backend.salveaza_log_json(email, spec, x, y)
         path = self.backend.genereaza_grafic(x, y)
         success, err = self.backend.trimite_mail(email, self.lang, x, y, spec, desc, path)
@@ -319,7 +307,6 @@ class App(ctk.CTk):
             self.loading_bar.pack_forget()
             self.status_label.configure(text=f"Error: {err}")
 
-    # --- 4. THANK YOU + STATS ---
     def show_thank_you_screen(self, spec):
         self.clean_frame()
         t = TEXTS[self.lang]
@@ -329,39 +316,28 @@ class App(ctk.CTk):
         ctk.CTkLabel(self, text=spec, font=("Roboto", 18), text_color="#64b5f6").pack(pady=5)
         ctk.CTkLabel(self, text=t["check_email"], font=("Arial", 14), text_color="gray").pack(pady=10)
 
-        # Buton Statistici Globale
-        ctk.CTkButton(self, text="📊 GLOBAL STATISTICS", 
-                      font=("Arial", 12, "bold"), height=35, width=200, corner_radius=18,
-                      fg_color="#1f6aa5", hover_color="#144a75", 
-                      command=self.show_statistics_screen).pack(pady=10)
+        # Buton Statistici
+        ctk.CTkButton(self, text="📊 GLOBAL STATS", font=("Arial", 12, "bold"), height=35, width=200, corner_radius=18,
+                      fg_color="#1f6aa5", hover_color="#144a75", command=self.show_statistics_screen).pack(pady=5)
 
+        # Buton Noua Sesiune
         ctk.CTkButton(self, text=t["restart"], font=("Roboto Medium", 12), height=45, width=200, corner_radius=22,
-                      fg_color="#333333", hover_color="#000000", command=self.show_language_screen).pack(pady=10)
+                      fg_color="#333333", hover_color="#000000", command=self.show_language_screen).pack(pady=5)
 
-    # --- 5. STATS SCREEN ---
+        # --- BUTONUL NOU DE HOME ---
+        ctk.CTkButton(self, text=t["back_home"], font=("Roboto Medium", 12), height=40, width=200, corner_radius=20,
+                      fg_color="transparent", border_width=1, border_color="#555555", text_color="gray",
+                      hover_color="#333333",
+                      command=self.controller.show_home).pack(pady=10)
+
     def show_statistics_screen(self):
         self.clean_frame()
-        
-        # Generăm graficul colectiv
         img_path = self.backend.genereaza_grafic_colectiv()
-        
-        # Afișăm imaginea folosind CTkImage (Necesită PIL)
         try:
-            my_image = ctk.CTkImage(light_image=Image.open(img_path),
-                                    dark_image=Image.open(img_path),
-                                    size=(500, 340)) # Size pt ecran 800x480
-            
-            image_label = ctk.CTkLabel(self, image=my_image, text="")
-            image_label.pack(pady=10)
+            my_image = ctk.CTkImage(light_image=Image.open(img_path), dark_image=Image.open(img_path), size=(500, 340))
+            ctk.CTkLabel(self, image=my_image, text="").pack(pady=10)
         except Exception as e:
-            ctk.CTkLabel(self, text=f"Error loading image: {e}").pack()
+            ctk.CTkLabel(self, text=f"Error: {e}").pack()
 
-        # Buton Înapoi
-        ctk.CTkButton(self, text="BACK", font=("Arial", 12, "bold"), 
-                      height=40, width=150, corner_radius=20,
-                      fg_color="#333333", hover_color="#000000", 
-                      command=lambda: self.show_language_screen()).pack(pady=10)
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+        ctk.CTkButton(self, text="BACK", font=("Arial", 12, "bold"), height=40, width=150, corner_radius=20,
+                      fg_color="#333333", command=lambda: self.show_thank_you_screen("")).pack(pady=10)
