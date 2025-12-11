@@ -115,7 +115,8 @@ class Character:
         self.voice_lines = {
             "wakeup": self._load_voice_files("voicelines/wakeup"),
             "normal": self._load_voice_files("voicelines/normal"),
-            "chemare": self._load_voice_files("voicelines/chemare")
+            "chemare": self._load_voice_files("voicelines/chemare"),
+            "letsgo": self._load_voice_files("voicelines/letsgo")
         }
 
     def _load_voice_files(self, directory):
@@ -230,6 +231,7 @@ class Character:
             self.change_state(State.NORMAL)
         elif self.current_state == State.WINKING:
             print("Wink finished. Going to Home.")
+            # Aici se face trecerea la Home, dupa ce s-a terminat animatia (si sunetul letsgo)
             if hasattr(self.app, 'navigate_to_home'):
                 self.app.after(0, self.app.navigate_to_home)
             else:
@@ -239,6 +241,10 @@ class Character:
         # Daca trecem in starea CLICK_ME (trezire), redam sunetul wakeup
         if new_state == State.CLICK_ME and self.current_state != State.CLICK_ME:
             self.play_voice("wakeup")
+            
+        # Daca trecem in starea WINKING (tranzitia spre home), redam sunetul "letsgo"
+        if new_state == State.WINKING and self.current_state != State.WINKING:
+            self.play_voice("letsgo")
 
         self.current_state = new_state
         self.current_frame = 0
@@ -249,8 +255,8 @@ class Character:
             time.sleep(1) # O data pe secunda
             
             if self.current_state == State.NORMAL:
-                # 10% sansa sa spuna ceva (Normal sau Chemare)
-                if random.random() < 0.10:
+                # 5% sansa sa spuna ceva (Normal sau Chemare)
+                if random.random() < 0.05:
                     # Alegem random intre normal si chemare
                     category = random.choice(["normal", "chemare"])
                     self.play_voice(category)
@@ -278,11 +284,13 @@ class Character:
     def on_click(self):
         if self.current_state == State.CLICK_ME:
             self.change_state(State.NORMAL)
-            # voiceline garantat la prima apasare
+            # voiceline garantat la prima apasare din Here
             category = random.choice(["normal", "chemare"])
             self.play_voice(category)
             self.normal_timer = 0
         elif self.current_state == State.NORMAL:
+            # Cand e normal si dam click, incepe tranzitia (Winking)
+            # Sunetul "letsgo" se va declansa in change_state cand setam WINKING
             self.change_state(State.WINKING)
             
     def stop(self):
