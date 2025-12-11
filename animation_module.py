@@ -7,11 +7,10 @@ from dataclasses import dataclass
 from typing import List
 from enum import Enum
 
-# --- IMPORT NOU ---
-# Asigură-te că presence_detector.py este în același director
+# Import the updated detector
 from presence_detector import PresenceDetector
 
-# --- CONSTANTE ȘI STRUCTURI DE DATE ---
+# --- CONSTANTE SI STRUCTURI DE DATE ---
 SLEEP_IN_SECONDS = 60
 
 @dataclass
@@ -109,7 +108,6 @@ class Character:
                 pil_image = pil_image.resize((800, 480), Image.Resampling.LANCZOS)
                 self.image_cache[path] = ImageTk.PhotoImage(pil_image)
             except Exception as e:
-                # print(f"Error loading image {path}: {e}")
                 return None
         return self.image_cache[path]
         
@@ -123,16 +121,13 @@ class Character:
                 
                 animation = ANIMATIONS[self.current_state]
                 
-                # Safety check
                 if self.current_frame >= len(animation.frames):
                     self.current_frame = 0
                     
                 frame = animation.frames[self.current_frame]
                 
-                # Încărcare imagine (operație grea, ok în thread)
                 tk_image = self.load_image(frame.image_path)
                 
-                # Actualizare GUI (DOAR pe main thread prin after)
                 if tk_image:
                     if hasattr(self.app, 'winfo_exists') and self.app.winfo_exists():
                         self.app.after(0, lambda img=tk_image: self._safe_gui_update(img))
@@ -162,13 +157,10 @@ class Character:
             pass
 
     def on_animation_complete(self):
-        """Called when a non-looping animation completes"""
         if self.current_state == State.LOOKING_AROUND_SLEEP:
             self.change_state(State.SLEEPING)
-            
         elif self.current_state == State.LOOKING_AROUND:
             self.change_state(State.NORMAL)
-
         elif self.current_state == State.WINKING:
             print("Wink finished. Going to Home.")
             if hasattr(self.app, 'navigate_to_home'):
@@ -227,7 +219,6 @@ class AnimationView(ctk.CTkFrame):
         self.image_label.bind("<Button-1>", self.on_image_click)
         self.image_label.bind("<Double-Button-1>", self.on_double_click)
         
-        # Threads pentru animație și comportament
         self.animation_thread = threading.Thread(target=self.character.run_animation, daemon=True)
         self.behavior_thread = threading.Thread(target=self.character.behavior_loop, daemon=True)
         self.animation_thread.start()
@@ -235,17 +226,13 @@ class AnimationView(ctk.CTkFrame):
         
         self.controller.bind("<space>", self.on_space_key)
 
-        # --- INTEGRARE DETECTOR PREZENȚĂ ---
-        # Inițializăm detectorul și îi pasăm funcția de callback pentru thread-safety
+        # --- PRESENCE DETECTOR ---
+        # Create detector (uses singleton camera - won't restart camera if already running)
         self.detector = PresenceDetector(on_detect_callback=self.thread_safe_wakeup)
-        self.detector_thread = threading.Thread(target=self.detector.start, daemon=True)
-        self.detector_thread.start()
+        # Start detection (this also starts camera if not already running)
+        self.detector.start()
 
     def thread_safe_wakeup(self):
-        """
-        Funcție helper apelată din thread-ul detectorului.
-        Folosește .after() pentru a executa logica pe thread-ul principal Tkinter.
-        """
         if hasattr(self, 'winfo_exists') and self.winfo_exists():
             self.after(0, self.character.wake_up)
 
@@ -257,16 +244,19 @@ class AnimationView(ctk.CTkFrame):
             self.navigate_to_home()
             
     def navigate_to_home(self):
-        """Helper method called by Character class"""
         self.controller.show_home()
     
     def on_space_key(self, event):
         self.character.wake_up()
 
     def cleanup(self):
-        # Oprim detectorul dacă există
-        if hasattr(self, 'detector'):
-            self.detector.stop()
-            
+        """Called when switching away from this view"""
+        # 1. Stop Character threads
         self.character.stop()
+        
+        # 2. PAUSE detection (camera keeps running!)
+        if hasattr(self, 'detector'):
+            self.detector.stop()  # This only stops detection, not camera
+            
         self.controller.unbind("<space>")
+        print("AnimationView cleanup complete (camera still running)")

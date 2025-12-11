@@ -1,0 +1,22 @@
+Initializing Picamera2...
+[1:04:08.451920872] [4489] ERROR Camera camera.cpp:702 Camera in Configured state trying acquire() requiring state Available
+Camera __init__ sequence did not complete.
+Error starting camera: Camera __init__ sequence did not complete.
+Traceback (most recent call last):
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 353, in __init__
+    self._open_camera()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 565, in _open_camera
+    self.camera.acquire()
+    ~~~~~~~~~~~~~~~~~~~^^
+RuntimeError: Failed to acquire camera: Device or resource busy
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hackstreet/threeB/threeB/presence_detector.py", line 187, in start
+    self.picam2 = Picamera2()
+                  ~~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 365, in __init__
+    raise RuntimeError("Camera __init__ sequence did not complete.")
+RuntimeError: Camera __init__ sequence did not complete.
