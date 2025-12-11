@@ -1,7 +1,13 @@
+# main.py
+
 import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
-from chat_module import ChatView  # Import the new module
+from chat_module import ChatView
+# NEW: Import the SettingsView module
+from setting_module import SettingsView 
+
+SKIP_INTRO = True
 
 class MainController(ctk.CTk):
     def __init__(self):
@@ -23,7 +29,10 @@ class MainController(ctk.CTk):
         self.bind("<Escape>", self.close_app)
         
         # Start with Animation
-        self.show_animation()
+        if SKIP_INTRO:
+            self.show_home()
+        else:
+            self.show_animation()
         
     def _switch_view(self, new_view_class):
         """Helper to handle switching views cleanly"""
@@ -42,6 +51,10 @@ class MainController(ctk.CTk):
         
     def show_chat(self):
         self._switch_view(ChatView)
+
+    # NEW METHOD: Switch to Settings View
+    def show_settings(self):
+        self._switch_view(SettingsView)
         
     def close_app(self, event=None):
         print("Shutting down...")
