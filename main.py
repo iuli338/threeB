@@ -2,10 +2,11 @@ import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
 from chat_module import ChatView
-
-# Import camera shutdown function
+from setting_module import SettingsView 
+from info_module import InfoView
 from presence_detector import shutdown_camera
 
+SKIP_INTRO = True
 IS_FULLSCREEN = True
 
 class MainController(ctk.CTk):
@@ -15,6 +16,8 @@ class MainController(ctk.CTk):
         # Window Configuration
         self.title("3B Intelligent Interface")
         self.geometry("800x480")
+        #self.overrideredirect(True)
+        #self.attributes("-fullscreen", True)
         
         if IS_FULLSCREEN:
             self.overrideredirect(True)
@@ -30,7 +33,10 @@ class MainController(ctk.CTk):
         self.bind("<Escape>", self.close_app)
         
         # Start with Animation
-        self.show_animation()
+        if SKIP_INTRO:
+            self.show_home()
+        else:
+            self.show_animation()
         
     def _switch_view(self, new_view_class):
         """Helper to handle switching views cleanly"""
@@ -51,6 +57,14 @@ class MainController(ctk.CTk):
         
     def show_chat(self):
         self._switch_view(ChatView)
+
+    # NEW METHOD: Switch to Settings View
+    def show_settings(self):
+        self._switch_view(SettingsView)
+        
+    # ADDED METHOD: Switch to Info View
+    def show_info(self):
+        self._switch_view(InfoView)
         
     def close_app(self, event=None):
         print("Shutting down application...")

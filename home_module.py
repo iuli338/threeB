@@ -1,3 +1,5 @@
+# home_module.py
+
 import customtkinter as ctk
 import tkinter as tk
 from PIL import Image, ImageTk, ImageDraw
@@ -43,6 +45,8 @@ class HomeView(ctk.CTkFrame):
 
         self.setup_header()
         self.setup_buttons()
+        # NEW: Setup the settings button
+        self.setup_settings_button()
 
         self.check_inactivity()
         
@@ -58,6 +62,23 @@ class HomeView(ctk.CTkFrame):
             header_frame, text="THREEB ⚙", font=("Arial", 28, "bold"), text_color=TITLE_BLUE
         )
         title_label.pack()
+
+    # NEW METHOD: Settings Button setup
+    def setup_settings_button(self):
+        settings_button = ctk.CTkButton(
+            self,
+            text="Settings",
+            command=self.show_settings, # Calls the new navigation method
+            width=80,
+            height=25
+        )
+        # Position in the top-right corner
+        settings_button.place(relx=1.0, rely=0.0, x=-20, y=20, anchor=tk.NE)
+
+    # NEW METHOD: Show Settings View
+    def show_settings(self):
+        self.reset_timer(None)
+        self.controller.show_settings() # Switch the full view via controller
 
     def setup_buttons(self):
         grid_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
@@ -101,7 +122,8 @@ class HomeView(ctk.CTkFrame):
             elif title == "QUIZ":
                 print("Quiz coming soon...")
             elif title == "INFO":
-                print("Info coming soon...")
+                # UPDATED: Navigate to InfoView
+                self.controller.show_info()
 
         canvas.bind("<Enter>", on_enter)
         canvas.bind("<Leave>", on_leave)
