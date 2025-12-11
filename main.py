@@ -1,12 +1,8 @@
 import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
-from chat_module import ChatView  # Import the new module
-
-skipintro = True
 from chat_module import ChatView
 from quiz import QuizView
-from chat_module import ChatView
 from setting_module import SettingsView 
 from info_module import InfoView
 from presence_detector import shutdown_camera
@@ -21,8 +17,6 @@ class MainController(ctk.CTk):
         # Window Configuration
         self.title("BBB")
         self.geometry("800x480")
-        #self.overrideredirect(True)
-        #self.attributes("-fullscreen", True)
         
         if IS_FULLSCREEN:
             self.overrideredirect(True)
