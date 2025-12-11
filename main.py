@@ -3,12 +3,14 @@ from animation_module import AnimationView
 from home_module import HomeView
 from chat_module import ChatView  # Import the new module
 
+skipintro = True
+
 class MainController(ctk.CTk):
     def __init__(self):
         super().__init__()
         
         # Window Configuration
-        self.title("3B Intelligent Interface")
+        self.title("BBB")
         self.geometry("800x480")
         ##self.overrideredirect(True)
         ##self.attributes("-fullscreen", True)
@@ -23,7 +25,10 @@ class MainController(ctk.CTk):
         self.bind("<Escape>", self.close_app)
         
         # Start with Animation
-        self.show_animation()
+        if skipintro:
+            self.show_home()
+        else:
+            self.show_animation()
         
     def _switch_view(self, new_view_class):
         """Helper to handle switching views cleanly"""

@@ -2,6 +2,7 @@ import google.generativeai as genai
 import json
 import random
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,10 +20,11 @@ class UniversityAI:
         self.current_personality = 1
         self.current_lang = 'ro'
         
+        # Baza de date cu întrebări (RU înlocuit cu UA)
         self.questions_db = {
             'ro': ["Ce specializări există?", "Cât durează studiile?", "Unde e facultatea?", "Locuri la buget?", "Admiterea e grea?", "Există cantină?", "Cum sunt căminele?", "Burse Erasmus?", "Număr studenți?", "De ce FACIEE?"],
             'en': ["What majors are there?", "How long are studies?", "Where is the faculty?", "Tuition free spots?", "Is admission hard?", "Is there a cafeteria?", "How are the dorms?", "Erasmus scholarships?", "Student count?", "Why FACIEE?"],
-            'ru': ["Какие есть специальности?", "Сколько длится обучение?", "Где факультет?", "Бюджетные места?", "Сложно ли поступить?", "Есть ли столовая?", "Как общежития?", "Стипендии Erasmus?", "Сколько студентов?", "Почему FACIEE?"]
+            'ua': ["Які є спеціальності?", "Скільки триває навчання?", "Де знаходиться факультет?", "Бюджетні місця?", "Чи важко вступити?", "Чи є їдальня?", "Як гуртожитки?", "Стипендії Erasmus?", "Кількість студентів?", "Чому FACIEE?"]
         }
 
     def set_personality(self, index):
@@ -45,32 +47,48 @@ class UniversityAI:
         return random.sample(pool, 3)
 
     def ask_gemini(self, user_question):
-        if not model: return "Eroare API Key."
+        if not model: 
+            return {"msg": "Eroare API Key.", "ref_ids": []}
 
-        if self.current_lang == 'ro': lang_instr = "Răspunde în limba ROMÂNĂ. Scurt (max 2-3 propozitii)."
-        if self.current_lang == 'en': lang_instr = "Reply in ENGLISH. Short (max 2-3 sentences)."
-        if self.current_lang == 'ru': lang_instr = "Отвечай на РУССКОМ. Кратко (макс 2-3 предложения)."
+        # Instrucțiuni Limbă (UA Update)
+        if self.current_lang == 'ro': lang_instr = "Răspunde în ROMÂNĂ."
+        elif self.current_lang == 'en': lang_instr = "Reply in ENGLISH."
+        elif self.current_lang == 'ua': lang_instr = "Відповідай УКРАЇНСЬКОЮ (Ukrainian)."
+        else: lang_instr = "Răspunde în ROMÂNĂ."
 
-        # --- MODIFICARE AICI: ANA A DISPĂRUT ---
-        if self.current_personality == 1:
-            role = "Ești THREEB, asistentul virtual oficial al facultății. Ești neutru, eficient și vorbești la obiect."
-        elif self.current_personality == 2:
-            role = "Ești PROFESORUL IONESCU. Academic, formal, serios."
-        elif self.current_personality == 3:
-            role = "Ești ALEX (Student/Bro). Folosește slang, relaxat."
-        else:
-            role = "Ești asistent."
+        if self.current_personality == 1: p_desc = "Ești THREEB, asistent oficial. Neutru."
+        elif self.current_personality == 2: p_desc = "Ești PROFESOR. Formal."
+        else: p_desc = "Ești BRO (Student). Slang, chill."
 
-        context = f"""
-        ROL: Vorbeste in maxim 2-3 propozitii.
-        {role}
-        IMPORTANT: {lang_instr}
-        DATE: {json.dumps(self.data, ensure_ascii=False)}
+        prompt = f"""
+        {p_desc}
+        {lang_instr}
+        Te rog să analizezi întrebarea utilizatorului pe baza datelor: {json.dumps(self.data, ensure_ascii=False)}
+        
+        REGULĂ STRICTĂ DE FORMAT:
+        Trebuie să răspunzi DOAR cu un obiect JSON valid, fără ```json.
+        Format:
+        {{
+            "msg": "Textul răspunsului tău aici (max 2 propoziții).",
+            "ref_ids": [lista_de_iduri]
+        }}
+
+        REGULA REF_IDS:
+        Dacă se menționează una dintre specializări, adaugă ID-ul ei:
+        1 = Automatică (AIA)
+        2 = Calculatoare (C / CTI)
+        3 = Electronică (IETTI)
+        4 = Inginerie Electrică (IEC)
+        Altfel: []
+        
         ÎNTREBARE: {user_question}
         """
         
         try:
-            response = model.generate_content(context)
-            return response.text
+            response = model.generate_content(prompt)
+            raw_text = response.text.strip()
+            raw_text = re.sub(r'```json', '', raw_text)
+            raw_text = re.sub(r'```', '', raw_text).strip()
+            return json.loads(raw_text)
         except:
-            return "Connection error."
+            return {"msg": "Eroare procesare răspuns.", "ref_ids": []}
