@@ -5,13 +5,13 @@ import traceback
 import os
 
 # --- CONFIGURARE HARDWARE ---
-USE_RASPBERRY_PI = False  
+USE_RASPBERRY_PI = True  
 FACE_AREA_THRESHOLD = 0.25 
 TIME_TO_TRIGGER = 1.0
 CASCADE_FILENAME = "haarcascade_frontalface_default.xml"
 
 class PresenceDetector:
-    def __init__(self, on_detect_callback=None, show_preview=False):
+    def __init__(self, on_detect_callback=None, show_preview=True):
         """
         :param show_preview: Dacă True, deschide o fereastră externă cu feed-ul camerei.
         """

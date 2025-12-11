@@ -3,6 +3,8 @@ from animation_module import AnimationView
 from home_module import HomeView
 from chat_module import ChatView  # Import the new module
 
+IS_FULLSCREEN = True
+
 class MainController(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -10,8 +12,9 @@ class MainController(ctk.CTk):
         # Window Configuration
         self.title("3B Intelligent Interface")
         self.geometry("800x480")
-        #self.overrideredirect(True)
-        #self.attributes("-fullscreen", True)
+        if IS_FULLSCREEN:
+            self.overrideredirect(True)
+            self.attributes("-fullscreen", True)
         self.resizable(False, False)
         
         # Theme
