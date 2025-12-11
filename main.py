@@ -2,6 +2,8 @@ import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
 from chat_module import ChatView
+from quiz import QuizView
+from chat_module import ChatView
 from setting_module import SettingsView 
 from info_module import InfoView
 from presence_detector import shutdown_camera
@@ -57,6 +59,9 @@ class MainController(ctk.CTk):
         
     def show_chat(self):
         self._switch_view(ChatView)
+
+    def show_quiz(self):  # <--- METODA NOUĂ
+        self._switch_view(QuizView)
 
     # NEW METHOD: Switch to Settings View
     def show_settings(self):

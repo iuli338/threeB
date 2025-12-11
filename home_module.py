@@ -50,7 +50,6 @@ class HomeView(ctk.CTkFrame):
 
         self.check_inactivity()
         
-        # Bind events for inactivity reset
         self.controller.bind_all("<Motion>", self.reset_timer)
         self.controller.bind_all("<Button-1>", self.reset_timer)
         self.controller.bind_all("<Key>", self.reset_timer)
@@ -119,11 +118,11 @@ class HomeView(ctk.CTkFrame):
             print(f"Clicked on {title}")
             self.reset_timer(None)
             
-            # --- NAVIGATION LOGIC ---
+            # --- NAVIGATION LOGIC UPDATED ---
             if title == "CHAT":
                 self.controller.show_chat()
             elif title == "QUIZ":
-                print("Quiz coming soon...")
+                self.controller.show_quiz() # <--- ACUM FUNCȚIONEAZĂ
             elif title == "INFO":
                 # UPDATED: Navigate to InfoView
                 self.controller.show_info()
