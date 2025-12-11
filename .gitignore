@@ -1,2 +1,6 @@
 .env
 __pycache__/
+# Ignora fisiere audio temporare
+*.mp3
+*.wav
+temp_tts_*.mp3

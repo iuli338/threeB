@@ -5,11 +5,11 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-API_KEY = os.getenv("GEMINI_KEY") or "PUNE_CHEIA_TA_AICI"
+API_KEY = os.getenv("GEMINI_KEY")
 
 try:
     genai.configure(api_key=API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash-lite')
 except:
     model = None
 
@@ -17,9 +17,8 @@ class UniversityAI:
     def __init__(self):
         self.data = self.load_data()
         self.current_personality = 1
-        self.current_lang = 'ro' # Default
+        self.current_lang = 'ro'
         
-        # Dicționar de întrebări traduse pentru butoane
         self.questions_db = {
             'ro': ["Ce specializări există?", "Cât durează studiile?", "Unde e facultatea?", "Locuri la buget?", "Admiterea e grea?", "Există cantină?", "Cum sunt căminele?", "Burse Erasmus?", "Număr studenți?", "De ce FACIEE?"],
             'en': ["What majors are there?", "How long are studies?", "Where is the faculty?", "Tuition free spots?", "Is admission hard?", "Is there a cafeteria?", "How are the dorms?", "Erasmus scholarships?", "Student count?", "Why FACIEE?"],
@@ -42,33 +41,31 @@ class UniversityAI:
             return {}
 
     def get_random_shortcuts(self):
-        # Returnăm întrebări în limba curentă
         pool = self.questions_db.get(self.current_lang, self.questions_db['ro'])
         return random.sample(pool, 3)
 
     def ask_gemini(self, user_question):
         if not model: return "Eroare API Key."
 
-        # Instrucțiuni de limbă
-        lang_instruction = ""
-        if self.current_lang == 'ro': lang_instruction = "Răspunde în limba ROMÂNĂ."
-        if self.current_lang == 'en': lang_instruction = "Reply in ENGLISH language."
-        if self.current_lang == 'ru': lang_instruction = "Отвечай на РУССКОМ языке."
+        if self.current_lang == 'ro': lang_instr = "Răspunde în limba ROMÂNĂ. Scurt (max 2-3 propozitii)."
+        if self.current_lang == 'en': lang_instr = "Reply in ENGLISH. Short (max 2-3 sentences)."
+        if self.current_lang == 'ru': lang_instr = "Отвечай на РУССКОМ. Кратко (макс 2-3 предложения)."
 
-        # Personaje
+        # --- MODIFICARE AICI: ANA A DISPĂRUT ---
         if self.current_personality == 1:
-            role = "Ești ANA, studentă. Calmă, politicoasă."
+            role = "Ești THREEB, asistentul virtual oficial al facultății. Ești neutru, eficient și vorbești la obiect."
         elif self.current_personality == 2:
             role = "Ești PROFESORUL IONESCU. Academic, formal, serios."
         elif self.current_personality == 3:
-            role = "Ești ALEX (Student). Folosește slang, relaxat."
+            role = "Ești ALEX (Student/Bro). Folosește slang, relaxat."
         else:
             role = "Ești asistent."
 
         context = f"""
+        ROL: Vorbeste in maxim 2-3 propozitii.
         {role}
-        IMPORTANT: {lang_instruction}
-        Folosește aceste date: {json.dumps(self.data, ensure_ascii=False)}
+        IMPORTANT: {lang_instr}
+        DATE: {json.dumps(self.data, ensure_ascii=False)}
         ÎNTREBARE: {user_question}
         """
         

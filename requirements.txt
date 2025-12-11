@@ -1,7 +1,7 @@
-flet[all]
+customtkinter
 google-generativeai
 python-dotenv
-edge-tts
 gTTS
 pygame
 packaging
+pillow
