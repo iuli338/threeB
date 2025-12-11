@@ -122,7 +122,8 @@ class HomeView(ctk.CTkFrame):
             elif title == "QUIZ":
                 print("Quiz coming soon...")
             elif title == "INFO":
-                print("Info coming soon...")
+                # UPDATED: Navigate to InfoView
+                self.controller.show_info()
 
         canvas.bind("<Enter>", on_enter)
         canvas.bind("<Leave>", on_leave)

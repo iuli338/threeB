@@ -6,6 +6,8 @@ from home_module import HomeView
 from chat_module import ChatView
 # NEW: Import the SettingsView module
 from setting_module import SettingsView 
+# ADDED: Import the InfoView module
+from info_module import InfoView
 
 SKIP_INTRO = True
 
@@ -55,6 +57,10 @@ class MainController(ctk.CTk):
     # NEW METHOD: Switch to Settings View
     def show_settings(self):
         self._switch_view(SettingsView)
+        
+    # ADDED METHOD: Switch to Info View
+    def show_info(self):
+        self._switch_view(InfoView)
         
     def close_app(self, event=None):
         print("Shutting down...")
