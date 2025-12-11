@@ -1,33 +1,54 @@
-from picamera2 import Picamera2
-from PIL import Image, ImageTk
-import tkinter as tk
+import customtkinter as ctk
+from animation_module import AnimationView
+from home_module import HomeView
+from chat_module import ChatView  # Import the new module
 
-def update_frame():
-    frame = picam2.capture_array()
-    img = Image.fromarray(frame)
+class MainController(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        # Window Configuration
+        self.title("3B Intelligent Interface")
+        self.geometry("800x480")
+        self.overrideredirect(True)
+        self.attributes("-fullscreen", True)
+        self.resizable(False, False)
+        
+        # Theme
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+        
+        self.current_view = None
+        
+        self.bind("<Escape>", self.close_app)
+        
+        # Start with Animation
+        self.show_animation()
+        
+    def _switch_view(self, new_view_class):
+        """Helper to handle switching views cleanly"""
+        if self.current_view:
+            if hasattr(self.current_view, 'cleanup'):
+                self.current_view.cleanup()
+            self.current_view.destroy()
+            
+        self.current_view = new_view_class(parent=self, controller=self)
 
-    # păstrăm aspectul, fără stretch
-    img = img.resize((640, 480), Image.Resampling.LANCZOS)
+    def show_animation(self):
+        self._switch_view(AnimationView)
+        
+    def show_home(self):
+        self._switch_view(HomeView)
+        
+    def show_chat(self):
+        self._switch_view(ChatView)
+        
+    def close_app(self, event=None):
+        print("Shutting down...")
+        if self.current_view and hasattr(self.current_view, 'cleanup'):
+            self.current_view.cleanup()
+        self.destroy()
 
-    imgtk = ImageTk.PhotoImage(image=img)
-    label.imgtk = imgtk
-    label.configure(image=imgtk)
-
-    root.after(10, update_frame)
-
-# ---- CAMERA ----
-picam2 = Picamera2()
-config = picam2.create_preview_configuration(main={"size": (640, 480)})
-picam2.configure(config)
-picam2.set_controls({"ScalerCrop": (0, 0, 640, 480)})
-picam2.start()
-
-# ---- TKINTER ----
-root = tk.Tk()
-root.title("Camera Preview")
-
-label = tk.Label(root, width=640, height=480)
-label.pack()
-
-update_frame()
-root.mainloop()
+if __name__ == "__main__":
+    app = MainController()
+    app.mainloop()
