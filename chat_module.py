@@ -61,7 +61,6 @@ class TouchKeyboard(ctk.CTkFrame):
                 text_color = "white"
                 cmd = lambda k=key: self.press_key(k)
                 
-                # Stiluri speciale
                 if key == '⌫':
                     width = 80
                     fg_color = "#8B0000"
@@ -74,9 +73,9 @@ class TouchKeyboard(ctk.CTkFrame):
                     hover_color = "#2e7d32"
                     cmd = self.press_submit
                 elif key == "✕":
-                    width = 40
+                    width = 50
                     height = 40
-                    fg_color = "#333"
+                    fg_color = "#8B0000"
                     hover_color = "#8B0000"
                     cmd = self.press_close
 
@@ -138,6 +137,10 @@ class ChatBubble(ctk.CTkFrame):
         )
         self.lbl_text.pack(padx=15, pady=10)
 
+    # --- MODIFICARE: Metodă pentru a actualiza textul ---
+    def update_text(self, new_text):
+        self.lbl_text.configure(text=new_text)
+
 
 class ChatView(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -152,8 +155,10 @@ class ChatView(ctk.CTkFrame):
         self.voice_enabled = True
         self.keyboard_visible = False
         
-        # Lista pentru a ține evidența butoanelor de sugestie
         self.suggestion_buttons = []
+        
+        # Variabilă pentru a păstra bula de "loading"
+        self.pending_bubble = None
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -245,7 +250,6 @@ class ChatView(ctk.CTkFrame):
             self.keyboard.show()
             self.keyboard_visible = True
             
-            # Ridicăm input-ul mai sus pentru a face loc tastaturii
             self.input_frame.grid_configure(pady=(0, 310)) 
             self.suggestions_frame.grid_remove()
 
@@ -300,10 +304,9 @@ class ChatView(ctk.CTkFrame):
         self.after(3000, lbl.destroy)
 
     def refresh_suggestions(self):
-        # 1. Ștergem butoanele vechi și resetăm lista
         for widget in self.suggestions_frame.winfo_children():
             widget.destroy()
-        self.suggestion_buttons = [] # Resetare listă
+        self.suggestion_buttons = []
 
         if self.ai: questions = self.ai.get_random_shortcuts()
         else: questions = ["Eroare API"]
@@ -316,11 +319,9 @@ class ChatView(ctk.CTkFrame):
                 command=lambda question=q: self.submit_suggestion(question)
             )
             btn.pack(side="left", padx=5, expand=True, fill="x")
-            # 2. Adăugăm referința butonului în listă
             self.suggestion_buttons.append(btn)
 
     def disable_suggestions(self):
-        """Dezactivează toate butoanele de sugestie curente"""
         for btn in self.suggestion_buttons:
             try:
                 btn.configure(state="disabled")
@@ -340,13 +341,18 @@ class ChatView(ctk.CTkFrame):
         if not text: return
         self.entry_msg.delete(0, "end")
         
-        # 3. Dezactivăm sugestiile imediat ce s-a trimis mesajul
+        # 1. Dezactivează sugestiile
         self.disable_suggestions()
-        
         self.close_keyboard()
         self.keyboard.place_forget()
         
+        # 2. Adaugă mesajul utilizatorului
         self.add_message(text, "User")
+
+        # 3. Adaugă mesajul de placeholder (Loading)
+        self.pending_bubble = self.add_message("Asistentul AI procesează...", "AI")
+        
+        # 4. Pornește thread-ul
         threading.Thread(target=self.process_ai_response, args=(text,), daemon=True).start()
 
     def process_ai_response(self, text):
@@ -355,21 +361,38 @@ class ChatView(ctk.CTkFrame):
         if not self.winfo_exists():
             return
 
-        self.add_message(response, "AI")
+        # 5. Programăm actualizarea UI pe thread-ul principal
+        self.after(0, lambda: self.finalize_ai_response(response))
+
+    def finalize_ai_response(self, response):
+        """Această funcție rulează pe Main Thread"""
+        # 6. Actualizăm bula existentă
+        if self.pending_bubble:
+            self.pending_bubble.update_text(response)
+            self.pending_bubble = None # Resetăm referința
+            # Facem scroll din nou jos în caz că textul e lung
+            self.chat_scroll._parent_canvas.yview_moveto(1.0)
+        else:
+            # Fallback (nu ar trebui să se întâmple)
+            self.add_message(response, "AI")
+
+        # 7. TTS
         if self.voice_enabled:
             self.tts.speak(response)
         
-        if self.winfo_exists():
-            # Aceasta va șterge butoanele dezactivate și va crea altele noi (active)
-            self.after(100, self.refresh_suggestions)
+        # 8. Reactivăm sugestiile
+        self.after(100, self.refresh_suggestions)
 
     def add_message(self, text, sender):
-        if not self.winfo_exists(): return
+        if not self.winfo_exists(): return None
         
         bubble = ChatBubble(self.chat_scroll, text=text, sender=sender, theme_id=self.current_mode)
         if sender == "AI": bubble.pack(pady=5, padx=10, anchor="w")
         else: bubble.pack(pady=5, padx=10, anchor="e")
         self.chat_scroll._parent_canvas.yview_moveto(1.0)
+        
+        # --- MODIFICARE: Returnăm obiectul bubble ---
+        return bubble
 
     def cleanup(self):
         if hasattr(self.tts, 'stop'):
