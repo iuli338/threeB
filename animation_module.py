@@ -34,7 +34,7 @@ class State(Enum):
 # Define animations
 ANIMATIONS = {
     State.NORMAL: Animation(
-        frames=[
+        frames=[    
             AnimationFrame("faces/smile.png", 2000),
             AnimationFrame("faces/closed_eyes.png", 100),
             AnimationFrame("faces/smile.png", 0),

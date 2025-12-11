@@ -1,92 +1,70 @@
 {
   "facultate": {
-    "nume_complet": "Facultatea de Automatică, Calculatoare, Inginerie Electrică și Electronică (FACIEE)",
+    "nume_scurt": "FACIEE",
+    "nume_complet": "Facultatea de Automatică, Calculatoare, Inginerie Electrică și Electronică",
     "universitate": "Universitatea 'Dunărea de Jos' din Galați (UDJG)",
-    "adresa": "Strada Științei nr. 2, Corp Y, Galați",
-    "descriere_generala": "Lider regional în educația tehnică, FACIEE pregătește ingineri pentru viitorul digital. Este cea mai căutată facultate din Galați, oferind acces la laboratoare moderne și parteneriate cu giganți industriali.",
-    "decanat_contact": "secretariat.faciee@ugal.ro",
-    "site_web": "www.aciee.ugal.ro"
+    "adresa": "Strada Științei nr. 2, Corp Y, Galați (Zona Centru/Parfumul Teilor)",
+    "decanat": "Corp Y, Etaj 1, Camera Y106",
+    "secretariat": "Program Luni-Vineri 11:00-13:00. Telefon: 0336 130 208",
+    "web": "aciee.ugal.ro",
+    "descriere": "Cea mai mare și prestigioasă facultate tehnică din regiune. Pregătește ingineri pentru IT, robotică, energetică și telecomunicații. Are parteneriate strategice cu Liberty Steel, Renault, Crystal System și Orange."
   },
   "admitere": {
-    "metoda": "Concurs de dosare (bazat pe media de la Bacalaureat) + Test grilă (pentru anumite specializări de top în anii cu concurență mare).",
-    "perioada": "Iulie (sesiunea principală) și Septembrie (pentru locuri rămase).",
-    "sfat": "La CTI (Calculatoare) este cea mai mare concurență, media de intrare este adesea peste 9.00."
+    "metoda": "Concurs de dosare (media BAC). La Calculatoare (CTI), în anii cu concurență mare, se dă test grilă.",
+    "sfat_ai": "Dacă vrei la CTI (Calculatoare), ai nevoie de medie mare (peste 9.20 în anii trecuți). La celelalte specializări se intră și cu medii mai mici, dar locurile la buget se ocupă rapid.",
+    "taxa": "Aprox. 3000-3500 RON/an (se poate plăti în rate)."
   },
-  "domenii_licenta": [
-    {
-      "nume": "Calculatoare și Tehnologia Informației (CTI)",
-      "acronim": "C.T.I.",
-      "durata": "4 ani",
-      "descriere": "Elita IT-ului. Înveți programare (C++, Java, Python), Arhitectura Calculatoarelor, AI, Baze de Date și Hardware.",
-      "oportunitati_cariera": "Software Developer, Cloud Architect, Data Scientist, Game Developer."
+  "specializari_licenta": {
+    "CTI": {
+      "nume": "Calculatoare și Tehnologia Informației",
+      "focus": "Software Engineering, AI, Web Dev, Baze de Date.",
+      "joburi": "Programator (Java, Python, C++), Arhitect Cloud, Game Developer.",
+      "dificultate": "Ridică. Multă matematică și programare intensivă."
     },
-    {
-      "nume": "Ingineria Sistemelor (AIA)",
-      "acronim": "A.I.A.",
-      "durata": "4 ani",
-      "descriere": "Automatică și Informatică Aplicată. Combini programarea cu hardware-ul. Înveți să programezi roboți, linii de producție, drone și sisteme inteligente (Smart Home).",
-      "oportunitati_cariera": "Automation Engineer, Robotics Specialist, SCADA Developer."
+    "AIA": {
+      "nume": "Ingineria Sistemelor (Automatică)",
+      "focus": "Robotică, Automatizări Industriale, Smart Home, PLC-uri.",
+      "joburi": "Inginer Automatist, Robotician, Programator SCADA.",
+      "dificultate": "Medie-Ridică. Combină programarea cu fizica și electronica."
     },
-    {
+    "IE": {
       "nume": "Inginerie Electrică",
-      "acronim": "I.E.",
-      "durata": "4 ani",
-      "descriere": "Viitorul energiei. Studii despre mașini electrice, energie regenerabilă (panouri solare, eoliene), vehicule electrice și rețele inteligente.",
-      "oportunitati_cariera": "Inginer Energetician, Proiectant Instalații Electrice, Specialist Automotive."
+      "focus": "Mașini electrice, Energii Regenerabile (Panouri Solare, Eoliene), Instalații.",
+      "joburi": "Inginer Energetician, Proiectant Instalații, Specialist E-Mobility.",
+      "dificultate": "Medie. De viitor pentru piața energiei verzi."
     },
-    {
-      "nume": "Electronică, Telecomunicații și Tehnologii Informaționale",
-      "acronim": "E.T.T.I.",
-      "durata": "4 ani",
-      "descriere": "Totul despre transmiterea informației. Circuite integrate, 5G, antene, procesare de semnal și electronică aplicată.",
-      "oportunitati_cariera": "Telecom Engineer, RF Engineer, Electronics Designer."
+    "ETTI": {
+      "nume": "Electronică și Telecomunicații",
+      "focus": "Circuite, Antene 5G, Procesoare, Semnale.",
+      "joburi": "Inginer Telecom, Proiectant Circuite, Testare Hardware.",
+      "dificultate": "Ridică. Necesită înțelegerea circuitelor complexe."
     }
-  ],
-  "viata_student": {
-    "cazare": {
-      "locatie": "Campusul Studențesc 'Al. I. Cuza' (aproximativ 10-15 min de mers pe jos de facultate).",
-      "conditii": "Camere recent renovate, internet gratuit, săli de lectură. Căminele C și D sunt cele mai populare.",
-      "pret_estimativ": "Între 150 - 250 RON/lună (pentru studenții la buget/taxă).",
-      "sfat_ai": "Depune cererea de cămin imediat ce ești admis, locurile bune se ocupă repede!"
-    },
-    "mancare_cantina": {
-      "nume": "Cantina Studențească UDJG",
-      "locatie": "În inima Campusului 'Al. I. Cuza'.",
-      "orar": "Luni - Vineri: 12:00 - 15:00 și 18:00 - 20:00.",
-      "preturi_estimative": {
-        "meniu_complet": "aprox. 15-20 RON (ciorbă + felul 2 + desert)",
-        "ciorba": "6 - 8 RON",
-        "felul_principal": "10 - 14 RON (șnițel, piure, grătar)",
-        "desert": "3 - 5 RON"
-      },
-      "vibe": "Mâncare ca la mama acasă, prețuri imbatabile. Coada e mare la prânz!"
-    },
-    "burse": [
-      "Bursă de Performanță (pentru medii de 10 sau concursuri)",
-      "Bursă de Merit (medii peste 9.50)",
-      "Bursă Socială (pentru venituri mici)",
-      "Bursă Erasmus+ (pentru studiat în străinătate 1 semestru)"
-    ]
   },
-  "transport_si_parcare": {
-    "parcare": {
-      "situatie": "DIFICILĂ. Parcarea facultății din Corpul Y este mică și rezervată profesorilor.",
-      "sfat_ai": "Nu veni cu mașina dacă poți evita. Studenții parchează pe străduțele laterale (Str. Gării, Str. Carnabel), dar riști amenzi dacă blochezi accesul.",
-      "alternativa": "Lasă mașina la cămin și mergi pe jos (10 min)."
+  "viata_student": {
+    "camine": {
+      "zona": "Campusul Studențesc 'Al. I. Cuza' (Str. Domnească). E la 15 min de mers pe jos de facultate.",
+      "top_camine": "Căminul C și D (condiții mai bune, renovate).",
+      "pret": "150-250 RON/lună (studenți buget) / 350-450 RON (taxă). Include utilități și internet."
     },
-    "autobuze": {
-      "statii_apropiate": "Stația 'Parfumul Teilor' sau 'Centru'.",
-      "linii_populare": [
-        "102 și 104 (leagă Campusul de Centru și Gară)",
-        "9 (Troleibuz)",
-        "11 (pentru cei care vin din Micro 19)"
-      ],
-      "bilet": "Reducere 90% pentru studenți la abonamente."
+    "cantina": {
+      "nume": "Cantina UDJG (în campus)",
+      "preturi": "Meniu complet (ciorbă + fel 2) aprox. 15-20 RON. Ciorbă: 6-8 RON. Fel principal: 10-14 RON.",
+      "orar": "Luni-Vineri 12:00-15:30. E aglomerat la 13:00.",
+      "plata": "Card sau Cash."
+    },
+    "transport": {
+      "statii": "Stația 'Parfumul Teilor' (lângă facultate) sau 'Centru'.",
+      "linii": "Autobuz 102, 104 (leagă Gara de Campus și Facultate). Troleibuz 102. Autobuz 11 (din Micro 19).",
+      "studenti": "Abonament gratuit sau redus 90% pe Transurb Galați."
+    },
+    "parcare": {
+      "info": "Parcarea din curtea facultății e doar pentru profesori. Studenții parchează pe străzile laterale (Str. Gării, Str. Carnabel).",
+      "warning": "Atenție la locurile rezidențiale plătite! Poliția Locală ridică mașini des."
     }
   },
   "facilitati_extra": {
-    "laboratoare": "Laboratoare sponsorizate de Liberty Steel, Crystal System și laboratoare Cisco/Microsoft.",
-    "biblioteca": "Bibliotecă modernă cu acces la baze de date internaționale.",
-    "distractie": "Cluburile studențești sunt aproape, iar Liga Studenților organizează baluri și seri de jocuri."
+    "laboratoare": "Laboratoare dotate de Liberty Steel, Crystal System și Orange. Acces la imprimante 3D și roboți industriali.",
+    "liga": "LSACG (Liga Studenților) organizează baluri, hackathoane și seri de board games.",
+    "burse": "Bursă Performanță (medii 10), Merit (medii >9.50), Socială (venit mic). Se virează pe card pe data de 15 a lunii."
   }
 }

@@ -1,6 +1,9 @@
 import customtkinter as ctk
 from animation_module import AnimationView
 from home_module import HomeView
+from chat_module import ChatView  # Import the new module
+
+skipintro = True
 from chat_module import ChatView
 from quiz import QuizView
 from chat_module import ChatView
@@ -16,7 +19,7 @@ class MainController(ctk.CTk):
         super().__init__()
 
         # Window Configuration
-        self.title("3B Intelligent Interface")
+        self.title("BBB")
         self.geometry("800x480")
         #self.overrideredirect(True)
         #self.attributes("-fullscreen", True)

@@ -1,0 +1,34 @@
+{
+    "1": {
+        "acronym": "AIA",
+        "name": "Automatică și Informatică Aplicată",
+        "tags": "ROBOTICĂ • PROGRAMARE • AUTOMATIZĂRI",
+        "description": "Înveți să programezi roboți, sisteme inteligente și să controlezi procese industriale complexe.",
+        "icon": "aia.png",
+        "url": "https://automatica.ugal.ro"
+    },
+    "2": {
+        "acronym": "C",
+        "name": "Calculatoare și Tehnologia Informației",
+        "tags": "SOFTWARE • HARDWARE • ARHITECTURĂ",
+        "description": "Focus total pe programare avansată, dezvoltare software, baze de date și arhitectura calculatoarelor.",
+        "icon": "calc.png",
+        "url": "https://www.cti.ugal.ro"
+    },
+    "3": {
+        "acronym": "IETTI",
+        "name": "Electronică și Telecomunicații",
+        "tags": "CIRCUITE • 5G • SEMNALE",
+        "description": "Proiectezi circuite electronice, sisteme de comunicații moderne și rețele de telecomunicații.",
+        "icon": "ietti.png",
+        "url": "https://iesce.ugal.ro"
+    },
+    "4": {
+        "acronym": "IEC",
+        "name": "Inginerie Electrică",
+        "tags": "ENERGIE • SMART GRID • MOTOARE",
+        "description": "Viitorul energiei verzi, mașini electrice și sisteme de putere pentru o lume sustenabilă.",
+        "icon": "iec.png",
+        "url": "http://www.etc.ugal.ro/alumni.php?lang=Ro"
+    }
+}

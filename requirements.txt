@@ -1,0 +1,7 @@
+customtkinter
+google-generativeai
+python-dotenv
+gTTS
+pygame
+packaging
+pillow
